@@ -1,0 +1,19 @@
+{
+  "name": "cashbook-pro-sheets-app",
+  "version": "1.2.0",
+  "description": "Mobile & Desktop CashBook Web App with Multi-Project Ledgers, HR Payroll (Monthly/Weekly/Daily), Bills, 5 Themes, and Offline-First Google Sheets CRUD Sync",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx --yes serve . -l 3000",
+    "dev": "python3 -m http.server 3000"
+  },
+  "keywords": [
+    "cashbook",
+    "ledger",
+    "google-sheets-database",
+    "offline-first",
+    "hr-payroll",
+    "cashflow"
+  ],
+  "license": "MIT"
+}

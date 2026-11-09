@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>CashBook Pro — Smart Cash Flow, Projects, HR & Bills (Google Sheets Synced)</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP GLOBAL UTILITY BAR (Theme Switcher, Mobile Frame Preview, Offline/Online Simulator, Google Sheet Link) -->
+  <header class="surface-card sticky top-0 z-30 border-b px-3 py-2.5 lg:px-6">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <!-- Brand + Active Book Pill -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl btn-accent flex items-center justify-center font-extrabold text-lg shadow-sm select-none">
+          ₹
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base lg:text-lg font-extrabold tracking-tight text-pri leading-none">CashBook Pro</h1>
+            <span id="syncStatusPill" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold badge-credit">
+              <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span>
+              <span id="syncStatusText">Online • Sheets Synced</span>
+            </span>
+          </div>
+          <p class="text-xs text-mut hidden sm:block mt-0.5">Personal & Work Projects • Cash In/Out • HR Payroll • Bills • Offline-First Google Sheets DB</p>
+        </div>
+      </div>
+
+      <!-- Right Controls: Book Selector, Offline Toggle, Viewport Toggle, Theme Selector -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Global Book Filter -->
+        <div class="flex items-center gap-1">
+          <label for="globalBookSelect" class="text-xs font-semibold text-sec hidden md:inline">Book:</label>
+          <select id="globalBookSelect" class="themed-input text-xs font-semibold rounded-lg px-2.5 py-1.5" aria-label="Select Active Cashbook">
+            <option value="ALL">All Books (Consolidated)</option>
+          </select>
+        </div>
+
+        <!-- Network Connectivity Toggle (Simulate Offline/Online for Testing) -->
+        <button id="toggleNetworkBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition" title="Toggle between Online and Offline mode to test LocalStorage Queue & Auto-Sync">
+          <span id="networkIcon">🌐</span>
+          <span id="networkBtnLabel">Go Offline</span>
+          <span id="pendingQueueCountBadge" class="hidden px-1.5 py-0.2 rounded-full text-[10px] font-bold badge-warn">0</span>
+        </button>
+
+        <!-- Mobile / Desktop Viewport Simulator Toggle -->
+        <button id="toggleViewportBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg text-xs font-semibold hidden md:flex items-center gap-1 hover:opacity-90 transition" title="Preview Mobile Phone Layout vs Full Website Layout">
+          <span>📱</span>
+          <span id="viewportBtnLabel">Mobile View</span>
+        </button>
+
+        <!-- Theme Selector -->
+        <div class="flex items-center gap-1">
+          <label for="themeSelector" class="sr-only">Choose Theme</label>
+          <select id="themeSelector" class="themed-input text-xs font-semibold rounded-lg px-2.5 py-1.5" aria-label="Theme Selector">
+            <option value="light">☀️ Light Ledger</option>
+            <option value="dark">🌙 Obsidian Dark</option>
+            <option value="emerald">🌿 Emerald Finance</option>
+            <option value="sepia">📜 Paper Khata (Sepia)</option>
+            <option value="contrast">👁️ High Contrast AAA</option>
+          </select>
+        </div>
+
+        <!-- Direct Link to Google Sheet DB -->
+        <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/edit" target="_blank" rel="noopener noreferrer" class="btn-accent px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm" title="Open live Google Sheet Database in Google Drive">
+          <span>📊</span>
+          <span class="hidden sm:inline">Open Drive Sheet</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- OFFLINE QUEUE BANNER (Shown when Offline or when Pending Mutations exist) -->
+  <div id="offlineBanner" class="hidden badge-warn border-b px-4 py-2 text-xs font-medium">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="font-bold">⚡ Offline Storage Active:</span>
+        <span id="offlineBannerMsg">Internet is disconnected. All new Debits, Credits, HR payouts, and Bill updates are safely saved in LocalStorage and queued for Google Sheets sync.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="reconnectAndSyncBtn" type="button" class="px-2.5 py-1 rounded font-bold btn-accent text-xs">
+          Reconnect & Sync Queue Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APPLICATION CONTAINER (Adapts to Responsive or Mobile Frame Preview) -->
+  <div id="appShellWrapper" class="flex-1 flex flex-col max-w-7xl w-full mx-auto">
+    <div class="flex-1 flex flex-col lg:flex-row">
+
+      <!-- DESKTOP LEFT NAVIGATION SIDEBAR -->
+      <aside class="desktop-sidebar hidden lg:flex lg:w-64 flex-col surface-card border-r p-4 gap-1.5 shrink-0">
+        <div class="mb-2 px-2 py-2 rounded-xl surface-elevated">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-mut">Active Scope</div>
+          <div id="sidebarActiveBookName" class="text-sm font-bold text-pri truncate mt-0.5">All Books (Consolidated)</div>
+          <div id="sidebarActiveBookBalance" class="text-base font-extrabold font-mono-num text-pri mt-1">₹0</div>
+        </div>
+
+        <nav class="flex flex-col gap-1" aria-label="Main Navigation">
+          <button type="button" data-nav="dashboard" class="nav-tab-btn nav-item-active flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition text-left">
+            <span class="flex items-center gap-2.5"><span>📈</span><span>Dashboard & Cash Flow</span></span>
+          </button>
+          <button type="button" data-nav="ledger" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>📒</span><span>Cashbook Ledger (In/Out)</span></span>
+            <span id="navBadgeLedger" class="text-xs font-mono-num px-1.5 py-0.5 rounded surface-elevated">12</span>
+          </button>
+          <button type="button" data-nav="books" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>🗂️</span><span>Books & Projects</span></span>
+            <span id="navBadgeBooks" class="text-xs font-mono-num px-1.5 py-0.5 rounded surface-elevated">4</span>
+          </button>
+          <button type="button" data-nav="hr" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>👥</span><span>HR, Staff & Payroll</span></span>
+            <span id="navBadgeHR" class="text-xs font-mono-num px-1.5 py-0.5 rounded badge-warn">4 Due</span>
+          </button>
+          <button type="button" data-nav="bills" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>🧾</span><span>Bills & Receivables</span></span>
+            <span id="navBadgeBills" class="text-xs font-mono-num px-1.5 py-0.5 rounded badge-debit">1 Overdue</span>
+          </button>
+          <button type="button" data-nav="sheets" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>🔄</span><span>Sheets DB & Offline Sync</span></span>
+            <span id="navBadgeQueue" class="text-xs font-mono-num px-1.5 py-0.5 rounded badge-info">0 Queued</span>
+          </button>
+        </nav>
+
+        <!-- Quick Cash In / Cash Out Action Buttons in Sidebar -->
+        <div class="mt-4 pt-4 border-t border-[var(--border-subtle)] flex flex-col gap-2">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-mut px-1">Quick Entry</div>
+          <button id="sidebarCashInBtn" type="button" class="w-full py-2.5 px-3 rounded-xl font-bold text-xs badge-credit flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition">
+            <span>➕</span><span>Cash In (Credit / Income)</span>
+          </button>
+          <button id="sidebarCashOutBtn" type="button" class="w-full py-2.5 px-3 rounded-xl font-bold text-xs badge-debit flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition">
+            <span>➖</span><span>Cash Out (Debit / Expense)</span>
+          </button>
+        </div>
+
+        <!-- Storage & Backup Status Card -->
+        <div class="mt-auto pt-4">
+          <div class="p-3 rounded-xl surface-elevated text-xs space-y-1.5">
+            <div class="flex items-center justify-between font-bold text-pri">
+              <span>Google Sheets DB</span>
+              <span id="sidebarSyncDot" class="text-[10px] px-1.5 py-0.5 rounded badge-credit">LIVE</span>
+            </div>
+            <p class="text-[11px] text-mut leading-snug">
+              ID: <span class="font-mono-num">1UTXWt...6bRvo</span>
+            </p>
+            <div class="flex items-center justify-between text-[11px] text-sec pt-1 border-t border-[var(--border-subtle)]">
+              <span>Local Cache:</span>
+              <span id="localStorageSizeLabel" class="font-mono-num font-semibold">Synced</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT AREA -->
+      <main class="flex-1 p-3 sm:p-5 lg:p-6 pb-24 lg:pb-10 overflow-x-hidden space-y-5">
+
+        <!-- TOP QUICK-ACTION BAR FOR MOBILE & TABLET -->
+        <div class="flex flex-wrap items-center justify-between gap-2 surface-card p-3 rounded-xl">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-mut">Quick Record:</span>
+            <button id="topCashInBtn" type="button" class="px-3 py-1.5 rounded-lg font-bold text-xs badge-credit inline-flex items-center gap-1 shadow-sm hover:opacity-90">
+              <span>➕ Cash In (Credit)</span>
+            </button>
+            <button id="topCashOutBtn" type="button" class="px-3 py-1.5 rounded-lg font-bold text-xs badge-debit inline-flex items-center gap-1 shadow-sm hover:opacity-90">
+              <span>➖ Cash Out (Debit)</span>
+            </button>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <button id="quickAddBillBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg font-semibold hover:opacity-80">
+              + Bill / Invoice
+            </button>
+            <button id="quickAddStaffBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg font-semibold hover:opacity-80">
+              + Staff / HR
+            </button>
+            <button id="quickExportCsvBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg font-semibold hover:opacity-80" title="Export active ledger to CSV">
+              ⬇️ CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- EXECUTIVE KPI STRIP (Always Visible, Updates Dynamically by Book) -->
+        <section aria-label="Key Financial Metrics" class="responsive-grid-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="surface-card p-3.5 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-semibold text-mut">
+              <span>Net Cash Balance</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] badge-info" id="kpiBookTag">All Books</span>
+            </div>
+            <div id="kpiNetBalance" class="text-xl sm:text-2xl font-extrabold font-mono-num text-pri mt-1">₹0</div>
+            <div id="kpiOpeningSub" class="text-[11px] text-mut mt-1">Opening: ₹0</div>
+          </div>
+
+          <div class="surface-card p-3.5 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-semibold text-mut">
+              <span>Total Cash In (Credits)</span>
+              <span class="text-xs font-bold badge-credit px-1.5 py-0.5 rounded">+ IN</span>
+            </div>
+            <div id="kpiTotalCredit" class="text-xl sm:text-2xl font-extrabold font-mono-num mt-1" style="color: var(--credit-fg);">+₹0</div>
+            <div id="kpiCreditCount" class="text-[11px] text-mut mt-1">0 credit entries</div>
+          </div>
+
+          <div class="surface-card p-3.5 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-semibold text-mut">
+              <span>Total Cash Out (Debits)</span>
+              <span class="text-xs font-bold badge-debit px-1.5 py-0.5 rounded">- OUT</span>
+            </div>
+            <div id="kpiTotalDebit" class="text-xl sm:text-2xl font-extrabold font-mono-num mt-1" style="color: var(--debit-fg);">-₹0</div>
+            <div id="kpiDebitCount" class="text-[11px] text-mut mt-1">0 debit entries</div>
+          </div>
+
+          <div class="surface-card p-3.5 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-semibold text-mut">
+              <span>HR & Bills Dues</span>
+              <span id="kpiDuesAlertBadge" class="text-[10px] font-bold badge-warn px-1.5 py-0.5 rounded">Action Needed</span>
+            </div>
+            <div id="kpiTotalPendingDues" class="text-xl sm:text-2xl font-extrabold font-mono-num text-pri mt-1">₹0</div>
+            <div id="kpiDuesSub" class="text-[11px] text-mut mt-1">Payroll + Unpaid Bills</div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 1: DASHBOARD & CASH FLOW ANALYTICS
+             ==================================================================== -->
+        <section id="view-dashboard" class="view-section space-y-5">
+          <!-- Charts Row -->
+          <div class="responsive-grid-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="surface-card p-4 rounded-xl">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h2 class="text-sm font-bold text-pri">Cash Flow by Project / Book (In vs Out)</h2>
+                  <p class="text-xs text-mut">Opening + Credits vs Debits across personal & work books</p>
+                </div>
+                <span class="text-[11px] font-mono-num px-2 py-0.5 rounded surface-elevated">INR (₹)</span>
+              </div>
+              <div class="relative h-64 w-full">
+                <canvas id="booksCashflowChart"></canvas>
+              </div>
+            </div>
+
+            <div class="surface-card p-4 rounded-xl">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h2 class="text-sm font-bold text-pri">Cash Out (Debit) Breakdown by Category</h2>
+                  <p class="text-xs text-mut">Where money is spent across selected book(s)</p>
+                </div>
+                <button type="button" data-goto="ledger" class="text-xs font-semibold underline text-sec hover:opacity-80">View Ledger →</button>
+              </div>
+              <div class="relative h-64 w-full">
+                <canvas id="categoryExpenseChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Per-Book Summary Cards + Urgent Action Center -->
+          <div class="responsive-grid-2 grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Project & Personal Cashbooks Summary Table -->
+            <div class="lg:col-span-2 surface-card p-4 rounded-xl">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h2 class="text-sm font-bold text-pri">Personal & Work Project Books Overview</h2>
+                  <p class="text-xs text-mut">Click any book to filter ledger or manage project cash flow</p>
+                </div>
+                <button id="dashNewBookBtn" type="button" class="btn-accent px-2.5 py-1 rounded-lg text-xs font-semibold">+ New Book</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                      <th class="py-2.5 px-3">Book / Project</th>
+                      <th class="py-2.5 px-3">Type</th>
+                      <th class="py-2.5 px-3 text-right">Opening</th>
+                      <th class="py-2.5 px-3 text-right">Cash In (+)</th>
+                      <th class="py-2.5 px-3 text-right">Cash Out (-)</th>
+                      <th class="py-2.5 px-3 text-right">Net Balance</th>
+                      <th class="py-2.5 px-3 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardBooksTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Urgent HR & Bill Reminders -->
+            <div class="surface-card p-4 rounded-xl flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <h2 class="text-sm font-bold text-pri">Upcoming & Overdue Dues</h2>
+                  <span class="text-[11px] px-2 py-0.5 rounded badge-warn font-semibold">Action Center</span>
+                </div>
+                <div id="dashboardAlertsList" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs">
+                <button type="button" data-goto="hr" class="font-semibold underline text-sec">Manage HR Payroll →</button>
+                <button type="button" data-goto="bills" class="font-semibold underline text-sec">Pay Bills →</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 2: CASHBOOK LEDGER (DEBITS & CREDITS WITH RUNNING BALANCE)
+             ==================================================================== -->
+        <section id="view-ledger" class="view-section hidden space-y-4">
+          <div class="surface-card p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-bold text-pri">Cashbook Transaction Ledger (Debits & Credits)</h2>
+                <p class="text-xs text-mut">Every entry syncs with the <span class="font-mono-num">Transactions</span> tab in your Google Sheet and calculates running balance</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="ledgerAddCreditBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold badge-credit">+ Cash In (Credit)</button>
+                <button id="ledgerAddDebitBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold badge-debit">- Cash Out (Debit)</button>
+              </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-2 border-t border-[var(--border-subtle)]">
+              <div>
+                <label for="ledgerSearchInput" class="block text-[11px] font-semibold text-mut mb-1">Search Party / Notes / Ref</label>
+                <input id="ledgerSearchInput" type="text" placeholder="e.g. Apex, Timber, TX-1001..." class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5" />
+              </div>
+              <div>
+                <label for="ledgerTypeFilter" class="block text-[11px] font-semibold text-mut mb-1">Entry Type</label>
+                <select id="ledgerTypeFilter" class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All (Credits & Debits)</option>
+                  <option value="CREDIT">Cash In / Credits (+)</option>
+                  <option value="DEBIT">Cash Out / Debits (-)</option>
+                </select>
+              </div>
+              <div>
+                <label for="ledgerModeFilter" class="block text-[11px] font-semibold text-mut mb-1">Payment Mode</label>
+                <select id="ledgerModeFilter" class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All Payment Modes</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Cheque">Cheque</option>
+                </select>
+              </div>
+              <div>
+                <label for="ledgerCategoryFilter" class="block text-[11px] font-semibold text-mut mb-1">Category</label>
+                <select id="ledgerCategoryFilter" class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All Categories</option>
+                </select>
+              </div>
+              <div class="flex items-end gap-2">
+                <div class="flex-1">
+                  <label for="ledgerDateFilter" class="block text-[11px] font-semibold text-mut mb-1">Date Period</label>
+                  <select id="ledgerDateFilter" class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5">
+                    <option value="ALL">All Dates</option>
+                    <option value="TODAY">Today (2026-11-09)</option>
+                    <option value="LAST7">Last 7 Days</option>
+                    <option value="THIS_MONTH">This Month (Nov 2026)</option>
+                  </select>
+                </div>
+                <button id="ledgerResetFiltersBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg text-xs font-semibold" title="Reset Filters">Reset</button>
+              </div>
+            </div>
+
+            <!-- Ledger Table -->
+            <div class="overflow-x-auto pt-2">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                    <th class="py-2.5 px-3">Date & ID</th>
+                    <th class="py-2.5 px-3">Book / Project</th>
+                    <th class="py-2.5 px-3">Party & Details</th>
+                    <th class="py-2.5 px-3">Category & Mode</th>
+                    <th class="py-2.5 px-3 text-right">Cash In (+)</th>
+                    <th class="py-2.5 px-3 text-right">Cash Out (-)</th>
+                    <th class="py-2.5 px-3 text-right">Running Bal</th>
+                    <th class="py-2.5 px-3 text-center">Sync</th>
+                    <th class="py-2.5 px-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 3: BOOKS & WORK PROJECTS MANAGER
+             ==================================================================== -->
+        <section id="view-books" class="view-section hidden space-y-4">
+          <div class="surface-card p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-bold text-pri">Personal & Work Project Cashbooks — Control Center</h2>
+                <p class="text-xs text-mut">Create, edit, budget, archive, or delete separate project books synced with the <span class="font-mono-num">Projects_Books</span> tab in Google Sheets</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="booksShowAllLedgerBtn" type="button" class="themed-input px-3 py-2 rounded-lg text-xs font-semibold hover:opacity-80">🌐 View Consolidated Ledger</button>
+                <button id="booksAddBookBtn" type="button" class="btn-accent px-3 py-2 rounded-lg text-xs font-bold">+ Create New Cashbook / Project</button>
+              </div>
+            </div>
+
+            <!-- Project Filter & Control Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-[var(--border-subtle)] text-xs">
+              <div>
+                <label for="projectSearchInput" class="block text-[11px] font-semibold text-mut mb-1">Search Project Name / ID</label>
+                <input id="projectSearchInput" type="text" placeholder="Search e.g. Apex, Studio, Personal..." class="themed-input w-full rounded-lg px-2.5 py-1.5" />
+              </div>
+              <div>
+                <label for="projectTypeFilter" class="block text-[11px] font-semibold text-mut mb-1">Project Type</label>
+                <select id="projectTypeFilter" class="themed-input w-full rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All Types (Personal, Work, HR, Client)</option>
+                  <option value="Work Project">Work Project</option>
+                  <option value="Personal">Personal & Household</option>
+                  <option value="HR & Admin">HR & Admin</option>
+                  <option value="Client Ledger">Client Ledger</option>
+                </select>
+              </div>
+              <div>
+                <label for="projectStatusFilter" class="block text-[11px] font-semibold text-mut mb-1">Lifecycle Status</label>
+                <select id="projectStatusFilter" class="themed-input w-full rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All Statuses</option>
+                  <option value="Active">Active Only</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="booksGridContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 4: HR, STAFF & PAYROLL MANAGEMENT
+             ==================================================================== -->
+        <section id="view-hr" class="view-section hidden space-y-4">
+          <div class="surface-card p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-bold text-pri">HR, Staff Attendance, Salary Advances & Payroll (Monthly • Weekly • Daily Modes)</h2>
+                <p class="text-xs text-mut">Synced with <span class="font-mono-num">HR_Payroll</span> tab • Supports fixed <strong>Monthly</strong> salaries, <strong>Weekly</strong> payouts, and <strong>Daily</strong> wage muster rolls</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="hrModeFilterSelect" class="themed-input text-xs font-semibold rounded-lg px-2.5 py-1.5" aria-label="Filter Staff by Salary Mode">
+                  <option value="ALL">All Modes (Monthly / Weekly / Daily)</option>
+                  <option value="Monthly">📅 Monthly Salary Mode</option>
+                  <option value="Weekly">🗓️ Weekly Payout Mode</option>
+                  <option value="Daily">⏱️ Daily Wage Mode</option>
+                </select>
+                <button id="hrAddEmployeeBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold">+ Add Employee / Contractor</button>
+              </div>
+            </div>
+
+            <!-- HR KPI Summary Strip -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Total Monthly Net Payroll</div>
+                <div id="hrTotalNetPayable" class="text-lg font-extrabold font-mono-num text-pri mt-0.5">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Disbursed (Paid)</div>
+                <div id="hrTotalPaid" class="text-lg font-extrabold font-mono-num mt-0.5" style="color: var(--credit-fg);">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Pending Payout</div>
+                <div id="hrTotalPending" class="text-lg font-extrabold font-mono-num mt-0.5" style="color: var(--debit-fg);">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Salary Advances (Udhar)</div>
+                <div id="hrTotalAdvances" class="text-lg font-extrabold font-mono-num text-pri mt-0.5">₹0</div>
+              </div>
+            </div>
+
+            <!-- HR Table -->
+            <div class="overflow-x-auto pt-2">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                    <th class="py-2.5 px-3">Employee & Role</th>
+                    <th class="py-2.5 px-3">Project Book</th>
+                    <th class="py-2.5 px-3">Salary Mode & Rate</th>
+                    <th class="py-2.5 px-3">Units / Attendance</th>
+                    <th class="py-2.5 px-3 text-right">Gross Earned</th>
+                    <th class="py-2.5 px-3 text-right">Advance (-)</th>
+                    <th class="py-2.5 px-3 text-right">Bonus (+)</th>
+                    <th class="py-2.5 px-3 text-right">Net Payable</th>
+                    <th class="py-2.5 px-3 text-center">Status</th>
+                    <th class="py-2.5 px-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="hrTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 5: BILLS, RECURRING PAYABLES & CLIENT RECEIVABLES
+             ==================================================================== -->
+        <section id="view-bills" class="view-section hidden space-y-4">
+          <div class="surface-card p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-bold text-pri">Bills, Recurring Utilities, Vendor Payables & Client Invoices</h2>
+                <p class="text-xs text-mut">Synced with <span class="font-mono-num">Bills_Payables</span> tab • 1-Click Settle automatically records the Cash Out / Cash In transaction</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <select id="billsStatusFilter" class="themed-input text-xs rounded-lg px-2.5 py-1.5" aria-label="Filter Bills by Status">
+                  <option value="ALL">All Statuses</option>
+                  <option value="OVERDUE">Overdue Only</option>
+                  <option value="DUE_SOON">Due Soon</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="PAID">Paid / Settled</option>
+                </select>
+                <button id="billsAddBillBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold">+ Add Bill / Invoice</button>
+              </div>
+            </div>
+
+            <!-- Bills KPI Summary -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Overdue Payables</div>
+                <div id="billsOverdueTotal" class="text-lg font-extrabold font-mono-num" style="color: var(--debit-fg);">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Due Soon / Pending Out</div>
+                <div id="billsPendingOutTotal" class="text-lg font-extrabold font-mono-num text-pri">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Pending Receivables (In)</div>
+                <div id="billsReceivableTotal" class="text-lg font-extrabold font-mono-num" style="color: var(--credit-fg);">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Paid / Settled This Month</div>
+                <div id="billsPaidTotal" class="text-lg font-extrabold font-mono-num text-sec">₹0</div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto pt-2">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                    <th class="py-2.5 px-3">Bill ID & Title</th>
+                    <th class="py-2.5 px-3">Vendor / Party</th>
+                    <th class="py-2.5 px-3">Book & Type</th>
+                    <th class="py-2.5 px-3">Due Date & Freq</th>
+                    <th class="py-2.5 px-3 text-right">Amount</th>
+                    <th class="py-2.5 px-3 text-center">Status</th>
+                    <th class="py-2.5 px-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="billsTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 6: GOOGLE SHEETS DATABASE CONNECTOR & OFFLINE SYNC CENTER
+             ==================================================================== -->
+        <section id="view-sheets" class="view-section hidden space-y-4">
+          <!-- Connection Config & Live Status -->
+          <div class="surface-card p-4 rounded-xl space-y-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-pri">Google Sheets Database & Offline-First Sync Engine</h2>
+                  <span class="px-2 py-0.5 rounded text-xs font-bold badge-credit">CRUD + Auto-Queue</span>
+                </div>
+                <p class="text-xs text-mut mt-0.5">
+                  Connected Master Spreadsheet in Google Drive:
+                  <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/edit" target="_blank" rel="noopener noreferrer" class="font-mono-num underline font-semibold text-pri">1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo</a>
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button id="forceSyncNowBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                  <span>🔄</span><span>Sync Pending Queue Now</span>
+                </button>
+                <button id="pullFromSheetsBtn" type="button" class="themed-input px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-80">
+                  ⬇️ Pull / Refresh from Sheet
+                </button>
+                <button id="resetDemoDataBtn" type="button" class="themed-input px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-80">
+                  ♻️ Reset Baseline Sheet Data
+                </button>
+              </div>
+            </div>
+
+            <!-- Configuration Inputs for Google Sheets Apps Script Webhook -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3.5 rounded-xl surface-elevated">
+              <div>
+                <label for="sheetIdInput" class="block text-[11px] font-bold uppercase text-mut mb-1">Google Drive Spreadsheet ID</label>
+                <input id="sheetIdInput" type="text" value="1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo" class="themed-input w-full text-xs font-mono-num rounded-lg px-2.5 py-1.5" />
+              </div>
+              <div class="lg:col-span-2">
+                <label for="appsScriptUrlInput" class="block text-[11px] font-bold uppercase text-mut mb-1">Google Apps Script Web App CRUD Endpoint URL (Optional Live Webhook)</label>
+                <div class="flex gap-2">
+                  <input id="appsScriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec (Leave blank for Local Replica + Queue Simulation)" class="themed-input flex-1 text-xs font-mono-num rounded-lg px-2.5 py-1.5" />
+                  <button id="saveSheetConfigBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold">Save Endpoint</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Offline Outbox Queue & Audit Trail Grid -->
+            <div class="responsive-grid-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Pending Offline Queue Outbox -->
+              <div class="surface-elevated p-3.5 rounded-xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Offline Outbox Queue (<span class="font-mono-num" id="outboxCountText">0</span> Pending)</h3>
+                    <p class="text-[11px] text-mut">Mutations recorded while offline in <span class="font-mono-num">localStorage</span> waiting for internet</p>
+                  </div>
+                  <span id="outboxStatusBadge" class="text-[11px] px-2 py-0.5 rounded font-bold badge-credit">Queue Empty</span>
+                </div>
+                <div id="offlineQueueList" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs"></div>
+              </div>
+
+              <!-- Apps Script Code.gs Generator for 2-Way Live Sheet Sync -->
+              <div class="surface-elevated p-3.5 rounded-xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Google Apps Script CRUD Connector (<span class="font-mono-num">Code.gs</span>)</h3>
+                    <p class="text-[11px] text-mut">Paste in your Sheet under <strong>Extensions → Apps Script → Deploy as Web App</strong></p>
+                  </div>
+                  <button id="copyAppsScriptBtn" type="button" class="btn-accent px-2.5 py-1 rounded text-xs font-bold">📋 Copy Code.gs</button>
+                </div>
+                <pre id="appsScriptCodeBlock" class="themed-input p-2.5 rounded-lg text-[11px] font-mono-num overflow-x-auto max-h-52 leading-relaxed select-all">// Bound to Google Sheet: 1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo
+const SPREADSHEET_ID = '1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo';
+
+function doGet(e) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const readTab = (name) => {
+    const sh = ss.getSheetByName(name);
+    if (!sh) return [];
+    const rows = sh.getDataRange().getValues();
+    const headers = rows.shift();
+    return rows.map(r => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
+  };
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'OK',
+    books: readTab('Projects_Books'),
+    transactions: readTab('Transactions'),
+    hr: readTab('HR_Payroll'),
+    bills: readTab('Bills_Payables')
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const payload = JSON.parse(e.postData.contents);
+  const ops = Array.isArray(payload.operations) ? payload.operations : [payload];
+  const logSheet = ss.getSheetByName('Sync_Audit_Log');
+
+  ops.forEach(op => {
+    const sh = ss.getSheetByName(op.sheetName);
+    if (!sh) return;
+    const data = sh.getDataRange().getValues();
+    const headers = data[0];
+    const idCol = 0; // Primary Key in Column A (Tx_ID, Book_ID, Emp_ID, Bill_ID)
+
+    if (op.action === 'CREATE') {
+      const newRow = headers.map(h => op.record[h] !== undefined ? op.record[h] : '');
+      sh.appendRow(newRow);
+    } else if (op.action === 'UPDATE') {
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][idCol]) === String(op.recordId)) {
+          const updatedRow = headers.map((h, c) => op.record[h] !== undefined ? op.record[h] : data[i][c]);
+          sh.getRange(i + 1, 1, 1, headers.length).setValues([updatedRow]);
+          break;
+        }
+      }
+    } else if (op.action === 'DELETE') {
+      for (let i = data.length - 1; i >= 1; i--) {
+        if (String(data[i][idCol]) === String(op.recordId)) {
+          sh.deleteRow(i + 1);
+          break;
+        }
+      }
+    }
+    if (logSheet) {
+      logSheet.appendRow(['SYNC-' + Date.now(), new Date().toISOString(), op.action, op.sheetName, op.recordId, op.sourceMode || 'WebApp', 'SUCCESS', op.details || 'Synced']);
+    }
+  });
+
+  return ContentService.createTextOutput(JSON.stringify({ status: 'SYNCED', count: ops.length }))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+              </div>
+            </div>
+
+            <!-- Sync Audit Log Table -->
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Google Sheets Sync Audit Log (<span class="font-mono-num">Sync_Audit_Log</span> Tab)</h3>
+                <button id="exportJsonBackupBtn" type="button" class="themed-input px-2.5 py-1 rounded text-xs font-semibold">⬇️ Download Full JSON DB Backup</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                      <th class="py-2 px-3">Log ID & Timestamp</th>
+                      <th class="py-2 px-3">CRUD Action</th>
+                      <th class="py-2 px-3">Target Sheet Tab</th>
+                      <th class="py-2 px-3">Record ID</th>
+                      <th class="py-2 px-3">Mode</th>
+                      <th class="py-2 px-3">Status</th>
+                      <th class="py-2 px-3">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="syncAuditTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="mobile-bottom-bar lg:hidden fixed bottom-0 left-0 right-0 z-30 surface-card border-t flex items-center justify-around py-1.5 px-1" aria-label="Mobile Bottom Navigation">
+      <button type="button" data-nav="dashboard" class="nav-tab-btn mobile-nav-active flex flex-col items-center gap-0.5 px-2 py-1 text-[11px]">
+        <span class="text-base">📈</span><span>Home</span>
+      </button>
+      <button type="button" data-nav="ledger" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">📒</span><span>Ledger</span>
+      </button>
+      <button type="button" data-nav="books" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">🗂️</span><span>Books</span>
+      </button>
+      <button type="button" data-nav="hr" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">👥</span><span>HR</span>
+      </button>
+      <button type="button" data-nav="bills" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">🧾</span><span>Bills</span>
+      </button>
+      <button type="button" data-nav="sheets" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">🔄</span><span>Sync</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 1: ADD / EDIT TRANSACTION (CASH IN / CASH OUT)
+       ========================================================================== -->
+  <div id="txModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-lg rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 id="txModalTitle" class="text-base font-extrabold text-pri">Record Cash In (Credit)</h3>
+        <button id="closeTxModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <form id="txForm" class="space-y-3 text-xs">
+        <input type="hidden" id="txIdField" />
+        <!-- Entry Type Toggle -->
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="txTypeCreditBtn" class="py-2 rounded-xl font-bold badge-credit text-center">➕ Cash In (Credit)</button>
+          <button type="button" id="txTypeDebitBtn" class="py-2 rounded-xl font-bold surface-elevated text-center">➖ Cash Out (Debit)</button>
+        </div>
+        <input type="hidden" id="txTypeField" value="CREDIT" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="txBookField" class="block font-semibold text-sec mb-1">Cashbook / Project *</label>
+            <select id="txBookField" required class="themed-input w-full rounded-lg px-2.5 py-2"></select>
+          </div>
+          <div>
+            <label for="txDateField" class="block font-semibold text-sec mb-1">Date & Time *</label>
+            <div class="flex gap-1.5">
+              <input id="txDateField" type="date" required class="themed-input flex-1 rounded-lg px-2 py-2" />
+              <input id="txTimeField" type="time" required class="themed-input w-24 rounded-lg px-2 py-2" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="txAmountField" class="block font-semibold text-sec mb-1">Base Amount (₹) *</label>
+            <input id="txAmountField" type="number" step="0.01" min="1" required placeholder="e.g. 25000" class="themed-input w-full font-mono-num font-bold rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="txTaxField" class="block font-semibold text-sec mb-1">GST / Tax (₹)</label>
+            <input id="txTaxField" type="number" step="0.01" min="0" value="0" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="txNetAmountPreview" class="block font-semibold text-sec mb-1">Net Total (₹)</label>
+            <input id="txNetAmountPreview" type="text" readonly value="₹0" class="surface-elevated w-full font-mono-num font-extrabold rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="txPartyNameField" class="block font-semibold text-sec mb-1">Party / Contact Name *</label>
+            <input id="txPartyNameField" type="text" required placeholder="Client, Vendor, Staff, Merchant..." class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="txPartyRoleField" class="block font-semibold text-sec mb-1">Party Role</label>
+            <select id="txPartyRoleField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Client">Client / Customer</option>
+              <option value="Vendor">Vendor / Supplier</option>
+              <option value="Employee">Employee / Staff</option>
+              <option value="Contractor">Contractor / Labor</option>
+              <option value="Merchant">Retail / Merchant</option>
+              <option value="Landlord">Landlord / Utility</option>
+              <option value="Income">Personal Income</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="txCategoryField" class="block font-semibold text-sec mb-1">Category *</label>
+            <input id="txCategoryField" type="text" list="categorySuggestions" required placeholder="e.g. Client Milestone" class="themed-input w-full rounded-lg px-2.5 py-2" />
+            <datalist id="categorySuggestions">
+              <option value="Client Milestone"></option>
+              <option value="Project Advance"></option>
+              <option value="Salary / Consulting"></option>
+              <option value="Staff Salary"></option>
+              <option value="Salary Advance (Udhar)"></option>
+              <option value="Raw Materials"></option>
+              <option value="Cloud & SaaS Bills"></option>
+              <option value="Utilities & Power"></option>
+              <option value="Rent & Maintenance"></option>
+              <option value="Daily Wage / Labor"></option>
+              <option value="Groceries & Dining"></option>
+            </datalist>
+          </div>
+          <div>
+            <label for="txModeField" class="block font-semibold text-sec mb-1">Payment Mode *</label>
+            <select id="txModeField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="UPI">UPI</option>
+              <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+              <option value="Cash">Cash</option>
+              <option value="Card">Card</option>
+              <option value="Cheque">Cheque</option>
+            </select>
+          </div>
+          <div>
+            <label for="txRefField" class="block font-semibold text-sec mb-1">Bill / Invoice Ref #</label>
+            <input id="txRefField" type="text" placeholder="e.g. INV-2026-109" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+
+        <div>
+          <label for="txNotesField" class="block font-semibold text-sec mb-1">Notes / Remarks</label>
+          <input id="txNotesField" type="text" placeholder="Add payment description or project milestone note..." class="themed-input w-full rounded-lg px-2.5 py-2" />
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelTxModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save & Sync to Sheet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: ADD / EDIT BOOK OR WORK PROJECT
+       ========================================================================== -->
+  <div id="bookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-md rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 id="bookModalTitle" class="text-base font-extrabold text-pri">Create New Cashbook / Work Project</h3>
+        <button id="closeBookModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <form id="bookForm" class="space-y-3 text-xs">
+        <input type="hidden" id="bookIdField" />
+        <div>
+          <label for="bookNameField" class="block font-semibold text-sec mb-1">Book / Project Name *</label>
+          <input id="bookNameField" type="text" required placeholder="e.g. Bengaluru Warehouse Project" class="themed-input w-full rounded-lg px-2.5 py-2" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="bookTypeField" class="block font-semibold text-sec mb-1">Category Type *</label>
+            <select id="bookTypeField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Work Project">Work Project</option>
+              <option value="Personal">Personal & Household</option>
+              <option value="HR & Admin">HR & Admin</option>
+              <option value="Client Ledger">Client Ledger</option>
+            </select>
+          </div>
+          <div>
+            <label for="bookStatusField" class="block font-semibold text-sec mb-1">Project Status *</label>
+            <select id="bookStatusField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Active">Active</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Completed">Completed</option>
+              <option value="Archived">Archived</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="bookOpeningField" class="block font-semibold text-sec mb-1">Opening Balance (₹) *</label>
+            <input id="bookOpeningField" type="number" step="1" required value="0" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="bookBudgetField" class="block font-semibold text-sec mb-1">Expense Budget Limit (₹)</label>
+            <input id="bookBudgetField" type="number" step="1" min="0" value="200000" placeholder="Optional cap" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <div>
+          <label for="bookDescField" class="block font-semibold text-sec mb-1">Project / Book Scope Description</label>
+          <input id="bookDescField" type="text" placeholder="Brief summary of cash flow tracked in this book" class="themed-input w-full rounded-lg px-2.5 py-2" />
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelBookModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2B: SAFE DELETE PROJECT / BOOK CONFIRMATION & CASCADE CONTROL
+       ========================================================================== -->
+  <div id="deleteBookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-md rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 class="text-base font-extrabold text-pri">Delete Project / Cashbook</h3>
+        <button id="closeDeleteBookModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <input type="hidden" id="deleteBookTargetId" />
+        <p class="text-sec leading-relaxed">
+          You are about to delete <strong id="deleteBookTargetName" class="text-pri">Project</strong> (<span id="deleteBookTargetStats" class="font-mono-num">0 linked entries</span>). Choose how to handle its linked records:
+        </p>
+        <div class="space-y-2">
+          <label class="flex items-start gap-2.5 p-2.5 rounded-lg surface-elevated cursor-pointer">
+            <input type="radio" name="deleteCascadeMode" value="reassign" checked class="mt-0.5" />
+            <div>
+              <div class="font-bold text-pri">Reassign Linked Entries to Another Book (Recommended)</div>
+              <div class="text-[11px] text-mut">Moves transactions, bills, and staff to your first remaining active book so no financial history is lost.</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-2.5 p-2.5 rounded-lg surface-elevated cursor-pointer">
+            <input type="radio" name="deleteCascadeMode" value="purge" class="mt-0.5" />
+            <div>
+              <div class="font-bold" style="color:var(--debit-fg)">Delete Project AND Purge All Linked Records</div>
+              <div class="text-[11px] text-mut">Permanently removes this book along with all its transactions, bills, and syncs the deletion to Google Sheets.</div>
+            </div>
+          </label>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelDeleteBookModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button id="confirmDeleteBookBtn" type="button" class="px-4 py-2 rounded-lg font-bold badge-debit">Confirm Delete & Sync</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: ADD / EDIT HR EMPLOYEE & PAYROLL
+       ========================================================================== -->
+  <div id="hrModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-lg rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 id="hrModalTitle" class="text-base font-extrabold text-pri">Add / Edit Employee Payroll Profile</h3>
+        <button id="closeHrModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <form id="hrForm" class="space-y-3 text-xs">
+        <input type="hidden" id="hrIdField" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="hrNameField" class="block font-semibold text-sec mb-1">Employee Full Name *</label>
+            <input id="hrNameField" type="text" required placeholder="e.g. Vikram Natarajan" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrRoleField" class="block font-semibold text-sec mb-1">Designation / Role *</label>
+            <input id="hrRoleField" type="text" required placeholder="e.g. DevOps Architect" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="hrBookField" class="block font-semibold text-sec mb-1">Assigned Project Book *</label>
+            <select id="hrBookField" class="themed-input w-full rounded-lg px-2.5 py-2"></select>
+          </div>
+          <div>
+            <label for="hrPhoneField" class="block font-semibold text-sec mb-1">Phone / Contact</label>
+            <input id="hrPhoneField" type="text" placeholder="+91 98400 00000" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <!-- Salary Calculation Mode Selector (Monthly / Weekly / Daily) -->
+        <div class="p-3 rounded-xl surface-elevated space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-pri">Salary Calculation Mode *</label>
+            <span id="hrModeFormulaHint" class="text-[11px] font-mono-num text-mut">Fixed Monthly Salary</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" data-set-salmode="Monthly" class="hr-salmode-btn py-2 px-2 rounded-lg font-bold btn-accent text-center">📅 Monthly</button>
+            <button type="button" data-set-salmode="Weekly" class="hr-salmode-btn py-2 px-2 rounded-lg font-bold surface-card text-sec text-center">🗓️ Weekly</button>
+            <button type="button" data-set-salmode="Daily" class="hr-salmode-btn py-2 px-2 rounded-lg font-bold surface-card text-sec text-center">⏱️ Daily Wage</button>
+          </div>
+          <input type="hidden" id="hrSalaryModeField" value="Monthly" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label id="hrRateLabel" for="hrPayRateField" class="block font-semibold text-sec mb-1">Monthly Rate (₹) *</label>
+            <input id="hrPayRateField" type="number" required min="1" value="35000" class="themed-input w-full font-mono-num font-bold rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label id="hrUnitsLabel" for="hrDaysField" class="block font-semibold text-sec mb-1">Days Worked (of 26)</label>
+            <input id="hrDaysField" type="number" step="0.5" min="0" max="365" value="26" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrBaseSalaryField" class="block font-semibold text-sec mb-1">Gross Earned (₹) *</label>
+            <input id="hrBaseSalaryField" type="number" required min="0" value="35000" class="surface-elevated w-full font-mono-num font-extrabold rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="hrAdvanceField" class="block font-semibold text-sec mb-1">Advance Taken (-₹)</label>
+            <input id="hrAdvanceField" type="number" min="0" value="0" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrBonusField" class="block font-semibold text-sec mb-1">Bonus / OT (+₹)</label>
+            <input id="hrBonusField" type="number" min="0" value="0" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrNetPayablePreview" class="block font-semibold text-sec mb-1">Net Payable (₹)</label>
+            <input id="hrNetPayablePreview" type="text" readonly value="₹35,000" class="surface-elevated w-full font-mono-num font-extrabold rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="hrAttendanceField" class="block font-semibold text-sec mb-1">Attendance / Shift Note</label>
+            <input id="hrAttendanceField" type="text" value="Present (26/26 Days)" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrModeField" class="block font-semibold text-sec mb-1">Payout Mode</label>
+            <select id="hrModeField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+              <option value="UPI">UPI</option>
+              <option value="Cash">Cash</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelHrModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: ADD / EDIT BILL OR CLIENT INVOICE
+       ========================================================================== -->
+  <div id="billModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-lg rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 id="billModalTitle" class="text-base font-extrabold text-pri">Add / Edit Bill or Receivable Invoice</h3>
+        <button id="closeBillModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <form id="billForm" class="space-y-3 text-xs">
+        <input type="hidden" id="billIdField" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="billTitleField" class="block font-semibold text-sec mb-1">Bill / Invoice Title *</label>
+            <input id="billTitleField" type="text" required placeholder="e.g. TNEB Commercial Power Bill" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="billPartyField" class="block font-semibold text-sec mb-1">Vendor / Biller / Client *</label>
+            <input id="billPartyField" type="text" required placeholder="e.g. TANGEDCO / TNEB" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="billBookField" class="block font-semibold text-sec mb-1">Project Book *</label>
+            <select id="billBookField" class="themed-input w-full rounded-lg px-2.5 py-2"></select>
+          </div>
+          <div>
+            <label for="billDirectionField" class="block font-semibold text-sec mb-1">Direction *</label>
+            <select id="billDirectionField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="PAYABLE (Bill Out)">PAYABLE (Bill Out / Expense)</option>
+              <option value="RECEIVABLE (Invoice In)">RECEIVABLE (Client Invoice In)</option>
+            </select>
+          </div>
+          <div>
+            <label for="billCategoryField" class="block font-semibold text-sec mb-1">Category *</label>
+            <input id="billCategoryField" type="text" required value="Utilities & Power" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div>
+            <label for="billAmountField" class="block font-semibold text-sec mb-1">Amount (₹) *</label>
+            <input id="billAmountField" type="number" required min="1" placeholder="12000" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="billDueDateField" class="block font-semibold text-sec mb-1">Due Date *</label>
+            <input id="billDueDateField" type="date" required value="2026-11-15" class="themed-input w-full rounded-lg px-2 py-2" />
+          </div>
+          <div>
+            <label for="billFreqField" class="block font-semibold text-sec mb-1">Frequency</label>
+            <select id="billFreqField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Monthly">Monthly</option>
+              <option value="One-Time">One-Time</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Yearly">Yearly</option>
+            </select>
+          </div>
+          <div>
+            <label for="billStatusField" class="block font-semibold text-sec mb-1">Status</label>
+            <select id="billStatusField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="PENDING">PENDING</option>
+              <option value="DUE_SOON">DUE_SOON</option>
+              <option value="OVERDUE">OVERDUE</option>
+              <option value="PAID">PAID</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="billNotesField" class="block font-semibold text-sec mb-1">Notes</label>
+          <input id="billNotesField" type="text" placeholder="Meter number, invoice number, or settlement instructions..." class="themed-input w-full rounded-lg px-2.5 py-2" />
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelBillModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save Bill</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-16 lg:bottom-5 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ==========================================================================
+       APPLICATION LOGIC (GOOGLE SHEETS CRUD + OFFLINE LOCALSTORAGE OUTBOX SYNC)
+       ========================================================================== -->
+  <script src="js/app.js"></script>
+</body>
+</html>

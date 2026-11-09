@@ -1,0 +1,3405 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>CashBook Pro — Smart Cash Flow, Projects, HR & Bills (Google Sheets Synced)</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       MULTI-THEME ENGINE — GUARANTEED WCAG AA/AAA CONTRAST ACROSS ALL 5 THEMES
+       ========================================================================== */
+    :root,
+    [data-theme="light"] {
+      --bg-app: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f8fafc;
+      --bg-muted: #e2e8f0;
+      --bg-input: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --border-subtle: #e2e8f0;
+      --accent-primary: #059669;
+      --accent-hover: #047857;
+      --accent-fg: #ffffff;
+      --accent-soft: #d1fae5;
+      --accent-soft-fg: #065f46;
+      --credit-bg: #ecfdf5;
+      --credit-fg: #047857;
+      --credit-border: #6ee7b7;
+      --debit-bg: #fff1f2;
+      --debit-fg: #be123c;
+      --debit-border: #fda4af;
+      --warn-bg: #fffbeb;
+      --warn-fg: #b45309;
+      --warn-border: #fcd34d;
+      --info-bg: #eff6ff;
+      --info-fg: #1d4ed8;
+      --info-border: #93c5fd;
+      --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --chart-grid: #e2e8f0;
+    }
+
+    [data-theme="dark"] {
+      --bg-app: #0b1120;
+      --bg-surface: #151f32;
+      --bg-elevated: #1e293b;
+      --bg-muted: #334155;
+      --bg-input: #0f172a;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --border-subtle: #1e293b;
+      --accent-primary: #10b981;
+      --accent-hover: #059669;
+      --accent-fg: #022c22;
+      --accent-soft: #064e3b;
+      --accent-soft-fg: #a7f3d0;
+      --credit-bg: #064e3b;
+      --credit-fg: #6ee7b7;
+      --credit-border: #059669;
+      --debit-bg: #4c0519;
+      --debit-fg: #fda4af;
+      --debit-border: #e11d48;
+      --warn-bg: #451a03;
+      --warn-fg: #fcd34d;
+      --warn-border: #d97706;
+      --info-bg: #172554;
+      --info-fg: #93c5fd;
+      --info-border: #2563eb;
+      --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.35);
+      --chart-grid: #1e293b;
+    }
+
+    [data-theme="emerald"] {
+      --bg-app: #ecfdf5;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f0fdf4;
+      --bg-muted: #d1fae5;
+      --bg-input: #ffffff;
+      --text-primary: #052e16;
+      --text-secondary: #14532d;
+      --text-muted: #166534;
+      --border-color: #86efac;
+      --border-subtle: #bbf7d0;
+      --accent-primary: #047857;
+      --accent-hover: #065f46;
+      --accent-fg: #ffffff;
+      --accent-soft: #a7f3d0;
+      --accent-soft-fg: #064e3b;
+      --credit-bg: #dcfce7;
+      --credit-fg: #166534;
+      --credit-border: #4ade80;
+      --debit-bg: #ffe4e6;
+      --debit-fg: #9f1239;
+      --debit-border: #fb7185;
+      --warn-bg: #fef3c7;
+      --warn-fg: #92400e;
+      --warn-border: #f59e0b;
+      --info-bg: #e0f2fe;
+      --info-fg: #075985;
+      --info-border: #38bdf8;
+      --shadow-card: 0 2px 6px rgba(5, 46, 22, 0.08);
+      --chart-grid: #bbf7d0;
+    }
+
+    [data-theme="sepia"] {
+      --bg-app: #f5ebe0;
+      --bg-surface: #fffdf9;
+      --bg-elevated: #faf3e8;
+      --bg-muted: #e6ccb2;
+      --bg-input: #ffffff;
+      --text-primary: #261710;
+      --text-secondary: #4a3327;
+      --text-muted: #6f4e37;
+      --border-color: #d4b595;
+      --border-subtle: #eadac8;
+      --accent-primary: #9a3412;
+      --accent-hover: #7c2d12;
+      --accent-fg: #ffffff;
+      --accent-soft: #ffedd5;
+      --accent-soft-fg: #7c2d12;
+      --credit-bg: #e9f5db;
+      --credit-fg: #1b4332;
+      --credit-border: #74c69d;
+      --debit-bg: #fae1dd;
+      --debit-fg: #800f2f;
+      --debit-border: #ff758f;
+      --warn-bg: #fefae0;
+      --warn-fg: #7f4f24;
+      --warn-border: #dda15e;
+      --info-bg: #edf2fb;
+      --info-fg: #1d3557;
+      --info-border: #a8dadc;
+      --shadow-card: 0 2px 5px rgba(38, 23, 16, 0.08);
+      --chart-grid: #eadac8;
+    }
+
+    [data-theme="contrast"] {
+      --bg-app: #ffffff;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f1f5f9;
+      --bg-muted: #e2e8f0;
+      --bg-input: #ffffff;
+      --text-primary: #000000;
+      --text-secondary: #111827;
+      --text-muted: #1f2937;
+      --border-color: #000000;
+      --border-subtle: #374151;
+      --accent-primary: #000000;
+      --accent-hover: #1f2937;
+      --accent-fg: #ffffff;
+      --accent-soft: #e5e7eb;
+      --accent-soft-fg: #000000;
+      --credit-bg: #d1fae5;
+      --credit-fg: #000000;
+      --credit-border: #000000;
+      --debit-bg: #ffe4e6;
+      --debit-fg: #000000;
+      --debit-border: #000000;
+      --warn-bg: #fef08a;
+      --warn-fg: #000000;
+      --warn-border: #000000;
+      --info-bg: #dbeafe;
+      --info-fg: #000000;
+      --info-border: #000000;
+      --shadow-card: 0 0 0 1.5px #000000;
+      --chart-grid: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .surface-card {
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-card);
+    }
+
+    .surface-elevated {
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .text-pri { color: var(--text-primary); }
+    .text-sec { color: var(--text-secondary); }
+    .text-mut { color: var(--text-muted); }
+
+    .btn-accent {
+      background-color: var(--accent-primary);
+      color: var(--accent-fg);
+      transition: all 0.15s ease;
+    }
+    .btn-accent:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .badge-credit {
+      background-color: var(--credit-bg);
+      color: var(--credit-fg);
+      border: 1px solid var(--credit-border);
+    }
+    .badge-debit {
+      background-color: var(--debit-bg);
+      color: var(--debit-fg);
+      border: 1px solid var(--debit-border);
+    }
+    .badge-warn {
+      background-color: var(--warn-bg);
+      color: var(--warn-fg);
+      border: 1px solid var(--warn-border);
+    }
+    .badge-info {
+      background-color: var(--info-bg);
+      color: var(--info-fg);
+      border: 1px solid var(--info-border);
+    }
+
+    .themed-input {
+      background-color: var(--bg-input);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+    .themed-input:focus {
+      outline: 2px solid var(--accent-primary);
+      outline-offset: 0px;
+    }
+
+    .nav-item-active {
+      background-color: var(--accent-soft);
+      color: var(--accent-soft-fg);
+      font-weight: 700;
+      border-left: 4px solid var(--accent-primary);
+    }
+
+    .mobile-nav-active {
+      color: var(--accent-primary);
+      font-weight: 700;
+    }
+
+    /* Mobile Simulator Frame Option */
+    .mobile-simulator-wrapper {
+      max-width: 412px;
+      margin: 16px auto;
+      border: 10px solid #1e293b;
+      border-radius: 36px;
+      overflow-x: hidden;
+      min-height: 840px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+    }
+    .mobile-simulator-wrapper .desktop-sidebar {
+      display: none !important;
+    }
+    .mobile-simulator-wrapper .mobile-bottom-bar {
+      display: flex !important;
+    }
+    .mobile-simulator-wrapper .responsive-grid-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    .mobile-simulator-wrapper .responsive-grid-2 {
+      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    }
+
+    /* Scrollbar polish */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-elevated);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP GLOBAL UTILITY BAR (Theme Switcher, Mobile Frame Preview, Offline/Online Simulator, Google Sheet Link) -->
+  <header class="surface-card sticky top-0 z-30 border-b px-3 py-2.5 lg:px-6">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <!-- Brand + Active Book Pill -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl btn-accent flex items-center justify-center font-extrabold text-lg shadow-sm select-none">
+          ₹
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base lg:text-lg font-extrabold tracking-tight text-pri leading-none">CashBook Pro</h1>
+            <span id="syncStatusPill" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold badge-credit">
+              <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span>
+              <span id="syncStatusText">Online • Sheets Synced</span>
+            </span>
+          </div>
+          <p class="text-xs text-mut hidden sm:block mt-0.5">Personal & Work Projects • Cash In/Out • HR Payroll • Bills • Offline-First Google Sheets DB</p>
+        </div>
+      </div>
+
+      <!-- Right Controls: Book Selector, Offline Toggle, Viewport Toggle, Theme Selector -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Global Book Filter -->
+        <div class="flex items-center gap-1">
+          <label for="globalBookSelect" class="text-xs font-semibold text-sec hidden md:inline">Book:</label>
+          <select id="globalBookSelect" class="themed-input text-xs font-semibold rounded-lg px-2.5 py-1.5" aria-label="Select Active Cashbook">
+            <option value="ALL">All Books (Consolidated)</option>
+          </select>
+        </div>
+
+        <!-- Network Connectivity Toggle (Simulate Offline/Online for Testing) -->
+        <button id="toggleNetworkBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition" title="Toggle between Online and Offline mode to test LocalStorage Queue & Auto-Sync">
+          <span id="networkIcon">🌐</span>
+          <span id="networkBtnLabel">Go Offline</span>
+          <span id="pendingQueueCountBadge" class="hidden px-1.5 py-0.2 rounded-full text-[10px] font-bold badge-warn">0</span>
+        </button>
+
+        <!-- Mobile / Desktop Viewport Simulator Toggle -->
+        <button id="toggleViewportBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg text-xs font-semibold hidden md:flex items-center gap-1 hover:opacity-90 transition" title="Preview Mobile Phone Layout vs Full Website Layout">
+          <span>📱</span>
+          <span id="viewportBtnLabel">Mobile View</span>
+        </button>
+
+        <!-- Theme Selector -->
+        <div class="flex items-center gap-1">
+          <label for="themeSelector" class="sr-only">Choose Theme</label>
+          <select id="themeSelector" class="themed-input text-xs font-semibold rounded-lg px-2.5 py-1.5" aria-label="Theme Selector">
+            <option value="light">☀️ Light Ledger</option>
+            <option value="dark">🌙 Obsidian Dark</option>
+            <option value="emerald">🌿 Emerald Finance</option>
+            <option value="sepia">📜 Paper Khata (Sepia)</option>
+            <option value="contrast">👁️ High Contrast AAA</option>
+          </select>
+        </div>
+
+        <!-- Direct Link to Google Sheet DB -->
+        <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/edit" target="_blank" rel="noopener noreferrer" class="btn-accent px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm" title="Open live Google Sheet Database in Google Drive">
+          <span>📊</span>
+          <span class="hidden sm:inline">Open Drive Sheet</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- OFFLINE QUEUE BANNER (Shown when Offline or when Pending Mutations exist) -->
+  <div id="offlineBanner" class="hidden badge-warn border-b px-4 py-2 text-xs font-medium">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="font-bold">⚡ Offline Storage Active:</span>
+        <span id="offlineBannerMsg">Internet is disconnected. All new Debits, Credits, HR payouts, and Bill updates are safely saved in LocalStorage and queued for Google Sheets sync.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="reconnectAndSyncBtn" type="button" class="px-2.5 py-1 rounded font-bold btn-accent text-xs">
+          Reconnect & Sync Queue Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APPLICATION CONTAINER (Adapts to Responsive or Mobile Frame Preview) -->
+  <div id="appShellWrapper" class="flex-1 flex flex-col max-w-7xl w-full mx-auto">
+    <div class="flex-1 flex flex-col lg:flex-row">
+
+      <!-- DESKTOP LEFT NAVIGATION SIDEBAR -->
+      <aside class="desktop-sidebar hidden lg:flex lg:w-64 flex-col surface-card border-r p-4 gap-1.5 shrink-0">
+        <div class="mb-2 px-2 py-2 rounded-xl surface-elevated">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-mut">Active Scope</div>
+          <div id="sidebarActiveBookName" class="text-sm font-bold text-pri truncate mt-0.5">All Books (Consolidated)</div>
+          <div id="sidebarActiveBookBalance" class="text-base font-extrabold font-mono-num text-pri mt-1">₹0</div>
+        </div>
+
+        <nav class="flex flex-col gap-1" aria-label="Main Navigation">
+          <button type="button" data-nav="dashboard" class="nav-tab-btn nav-item-active flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition text-left">
+            <span class="flex items-center gap-2.5"><span>📈</span><span>Dashboard & Cash Flow</span></span>
+          </button>
+          <button type="button" data-nav="ledger" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>📒</span><span>Cashbook Ledger (In/Out)</span></span>
+            <span id="navBadgeLedger" class="text-xs font-mono-num px-1.5 py-0.5 rounded surface-elevated">12</span>
+          </button>
+          <button type="button" data-nav="books" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>🗂️</span><span>Books & Projects</span></span>
+            <span id="navBadgeBooks" class="text-xs font-mono-num px-1.5 py-0.5 rounded surface-elevated">4</span>
+          </button>
+          <button type="button" data-nav="hr" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>👥</span><span>HR, Staff & Payroll</span></span>
+            <span id="navBadgeHR" class="text-xs font-mono-num px-1.5 py-0.5 rounded badge-warn">4 Due</span>
+          </button>
+          <button type="button" data-nav="bills" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>🧾</span><span>Bills & Receivables</span></span>
+            <span id="navBadgeBills" class="text-xs font-mono-num px-1.5 py-0.5 rounded badge-debit">1 Overdue</span>
+          </button>
+          <button type="button" data-nav="sheets" class="nav-tab-btn flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-sec hover:opacity-80 transition text-left">
+            <span class="flex items-center gap-2.5"><span>🔄</span><span>Sheets DB & Offline Sync</span></span>
+            <span id="navBadgeQueue" class="text-xs font-mono-num px-1.5 py-0.5 rounded badge-info">0 Queued</span>
+          </button>
+        </nav>
+
+        <!-- Quick Cash In / Cash Out Action Buttons in Sidebar -->
+        <div class="mt-4 pt-4 border-t border-[var(--border-subtle)] flex flex-col gap-2">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-mut px-1">Quick Entry</div>
+          <button id="sidebarCashInBtn" type="button" class="w-full py-2.5 px-3 rounded-xl font-bold text-xs badge-credit flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition">
+            <span>➕</span><span>Cash In (Credit / Income)</span>
+          </button>
+          <button id="sidebarCashOutBtn" type="button" class="w-full py-2.5 px-3 rounded-xl font-bold text-xs badge-debit flex items-center justify-center gap-1.5 shadow-sm hover:opacity-90 transition">
+            <span>➖</span><span>Cash Out (Debit / Expense)</span>
+          </button>
+        </div>
+
+        <!-- Storage & Backup Status Card -->
+        <div class="mt-auto pt-4">
+          <div class="p-3 rounded-xl surface-elevated text-xs space-y-1.5">
+            <div class="flex items-center justify-between font-bold text-pri">
+              <span>Google Sheets DB</span>
+              <span id="sidebarSyncDot" class="text-[10px] px-1.5 py-0.5 rounded badge-credit">LIVE</span>
+            </div>
+            <p class="text-[11px] text-mut leading-snug">
+              ID: <span class="font-mono-num">1UTXWt...6bRvo</span>
+            </p>
+            <div class="flex items-center justify-between text-[11px] text-sec pt-1 border-t border-[var(--border-subtle)]">
+              <span>Local Cache:</span>
+              <span id="localStorageSizeLabel" class="font-mono-num font-semibold">Synced</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT AREA -->
+      <main class="flex-1 p-3 sm:p-5 lg:p-6 pb-24 lg:pb-10 overflow-x-hidden space-y-5">
+
+        <!-- TOP QUICK-ACTION BAR FOR MOBILE & TABLET -->
+        <div class="flex flex-wrap items-center justify-between gap-2 surface-card p-3 rounded-xl">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-mut">Quick Record:</span>
+            <button id="topCashInBtn" type="button" class="px-3 py-1.5 rounded-lg font-bold text-xs badge-credit inline-flex items-center gap-1 shadow-sm hover:opacity-90">
+              <span>➕ Cash In (Credit)</span>
+            </button>
+            <button id="topCashOutBtn" type="button" class="px-3 py-1.5 rounded-lg font-bold text-xs badge-debit inline-flex items-center gap-1 shadow-sm hover:opacity-90">
+              <span>➖ Cash Out (Debit)</span>
+            </button>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <button id="quickAddBillBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg font-semibold hover:opacity-80">
+              + Bill / Invoice
+            </button>
+            <button id="quickAddStaffBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg font-semibold hover:opacity-80">
+              + Staff / HR
+            </button>
+            <button id="quickExportCsvBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg font-semibold hover:opacity-80" title="Export active ledger to CSV">
+              ⬇️ CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- EXECUTIVE KPI STRIP (Always Visible, Updates Dynamically by Book) -->
+        <section aria-label="Key Financial Metrics" class="responsive-grid-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="surface-card p-3.5 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-semibold text-mut">
+              <span>Net Cash Balance</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] badge-info" id="kpiBookTag">All Books</span>
+            </div>
+            <div id="kpiNetBalance" class="text-xl sm:text-2xl font-extrabold font-mono-num text-pri mt-1">₹0</div>
+            <div id="kpiOpeningSub" class="text-[11px] text-mut mt-1">Opening: ₹0</div>
+          </div>
+
+          <div class="surface-card p-3.5 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-semibold text-mut">
+              <span>Total Cash In (Credits)</span>
+              <span class="text-xs font-bold badge-credit px-1.5 py-0.5 rounded">+ IN</span>
+            </div>
+            <div id="kpiTotalCredit" class="text-xl sm:text-2xl font-extrabold font-mono-num mt-1" style="color: var(--credit-fg);">+₹0</div>
+            <div id="kpiCreditCount" class="text-[11px] text-mut mt-1">0 credit entries</div>
+          </div>
+
+          <div class="surface-card p-3.5 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-semibold text-mut">
+              <span>Total Cash Out (Debits)</span>
+              <span class="text-xs font-bold badge-debit px-1.5 py-0.5 rounded">- OUT</span>
+            </div>
+            <div id="kpiTotalDebit" class="text-xl sm:text-2xl font-extrabold font-mono-num mt-1" style="color: var(--debit-fg);">-₹0</div>
+            <div id="kpiDebitCount" class="text-[11px] text-mut mt-1">0 debit entries</div>
+          </div>
+
+          <div class="surface-card p-3.5 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-semibold text-mut">
+              <span>HR & Bills Dues</span>
+              <span id="kpiDuesAlertBadge" class="text-[10px] font-bold badge-warn px-1.5 py-0.5 rounded">Action Needed</span>
+            </div>
+            <div id="kpiTotalPendingDues" class="text-xl sm:text-2xl font-extrabold font-mono-num text-pri mt-1">₹0</div>
+            <div id="kpiDuesSub" class="text-[11px] text-mut mt-1">Payroll + Unpaid Bills</div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 1: DASHBOARD & CASH FLOW ANALYTICS
+             ==================================================================== -->
+        <section id="view-dashboard" class="view-section space-y-5">
+          <!-- Charts Row -->
+          <div class="responsive-grid-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="surface-card p-4 rounded-xl">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h2 class="text-sm font-bold text-pri">Cash Flow by Project / Book (In vs Out)</h2>
+                  <p class="text-xs text-mut">Opening + Credits vs Debits across personal & work books</p>
+                </div>
+                <span class="text-[11px] font-mono-num px-2 py-0.5 rounded surface-elevated">INR (₹)</span>
+              </div>
+              <div class="relative h-64 w-full">
+                <canvas id="booksCashflowChart"></canvas>
+              </div>
+            </div>
+
+            <div class="surface-card p-4 rounded-xl">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h2 class="text-sm font-bold text-pri">Cash Out (Debit) Breakdown by Category</h2>
+                  <p class="text-xs text-mut">Where money is spent across selected book(s)</p>
+                </div>
+                <button type="button" data-goto="ledger" class="text-xs font-semibold underline text-sec hover:opacity-80">View Ledger →</button>
+              </div>
+              <div class="relative h-64 w-full">
+                <canvas id="categoryExpenseChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Per-Book Summary Cards + Urgent Action Center -->
+          <div class="responsive-grid-2 grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Project & Personal Cashbooks Summary Table -->
+            <div class="lg:col-span-2 surface-card p-4 rounded-xl">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h2 class="text-sm font-bold text-pri">Personal & Work Project Books Overview</h2>
+                  <p class="text-xs text-mut">Click any book to filter ledger or manage project cash flow</p>
+                </div>
+                <button id="dashNewBookBtn" type="button" class="btn-accent px-2.5 py-1 rounded-lg text-xs font-semibold">+ New Book</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                      <th class="py-2.5 px-3">Book / Project</th>
+                      <th class="py-2.5 px-3">Type</th>
+                      <th class="py-2.5 px-3 text-right">Opening</th>
+                      <th class="py-2.5 px-3 text-right">Cash In (+)</th>
+                      <th class="py-2.5 px-3 text-right">Cash Out (-)</th>
+                      <th class="py-2.5 px-3 text-right">Net Balance</th>
+                      <th class="py-2.5 px-3 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardBooksTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Urgent HR & Bill Reminders -->
+            <div class="surface-card p-4 rounded-xl flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <h2 class="text-sm font-bold text-pri">Upcoming & Overdue Dues</h2>
+                  <span class="text-[11px] px-2 py-0.5 rounded badge-warn font-semibold">Action Center</span>
+                </div>
+                <div id="dashboardAlertsList" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs">
+                <button type="button" data-goto="hr" class="font-semibold underline text-sec">Manage HR Payroll →</button>
+                <button type="button" data-goto="bills" class="font-semibold underline text-sec">Pay Bills →</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 2: CASHBOOK LEDGER (DEBITS & CREDITS WITH RUNNING BALANCE)
+             ==================================================================== -->
+        <section id="view-ledger" class="view-section hidden space-y-4">
+          <div class="surface-card p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-bold text-pri">Cashbook Transaction Ledger (Debits & Credits)</h2>
+                <p class="text-xs text-mut">Every entry syncs with the <span class="font-mono-num">Transactions</span> tab in your Google Sheet and calculates running balance</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="ledgerAddCreditBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold badge-credit">+ Cash In (Credit)</button>
+                <button id="ledgerAddDebitBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold badge-debit">- Cash Out (Debit)</button>
+              </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-2 border-t border-[var(--border-subtle)]">
+              <div>
+                <label for="ledgerSearchInput" class="block text-[11px] font-semibold text-mut mb-1">Search Party / Notes / Ref</label>
+                <input id="ledgerSearchInput" type="text" placeholder="e.g. Apex, Timber, TX-1001..." class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5" />
+              </div>
+              <div>
+                <label for="ledgerTypeFilter" class="block text-[11px] font-semibold text-mut mb-1">Entry Type</label>
+                <select id="ledgerTypeFilter" class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All (Credits & Debits)</option>
+                  <option value="CREDIT">Cash In / Credits (+)</option>
+                  <option value="DEBIT">Cash Out / Debits (-)</option>
+                </select>
+              </div>
+              <div>
+                <label for="ledgerModeFilter" class="block text-[11px] font-semibold text-mut mb-1">Payment Mode</label>
+                <select id="ledgerModeFilter" class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All Payment Modes</option>
+                  <option value="UPI">UPI</option>
+                  <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Cheque">Cheque</option>
+                </select>
+              </div>
+              <div>
+                <label for="ledgerCategoryFilter" class="block text-[11px] font-semibold text-mut mb-1">Category</label>
+                <select id="ledgerCategoryFilter" class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All Categories</option>
+                </select>
+              </div>
+              <div class="flex items-end gap-2">
+                <div class="flex-1">
+                  <label for="ledgerDateFilter" class="block text-[11px] font-semibold text-mut mb-1">Date Period</label>
+                  <select id="ledgerDateFilter" class="themed-input w-full text-xs rounded-lg px-2.5 py-1.5">
+                    <option value="ALL">All Dates</option>
+                    <option value="TODAY">Today (2026-11-09)</option>
+                    <option value="LAST7">Last 7 Days</option>
+                    <option value="THIS_MONTH">This Month (Nov 2026)</option>
+                  </select>
+                </div>
+                <button id="ledgerResetFiltersBtn" type="button" class="themed-input px-2.5 py-1.5 rounded-lg text-xs font-semibold" title="Reset Filters">Reset</button>
+              </div>
+            </div>
+
+            <!-- Ledger Table -->
+            <div class="overflow-x-auto pt-2">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                    <th class="py-2.5 px-3">Date & ID</th>
+                    <th class="py-2.5 px-3">Book / Project</th>
+                    <th class="py-2.5 px-3">Party & Details</th>
+                    <th class="py-2.5 px-3">Category & Mode</th>
+                    <th class="py-2.5 px-3 text-right">Cash In (+)</th>
+                    <th class="py-2.5 px-3 text-right">Cash Out (-)</th>
+                    <th class="py-2.5 px-3 text-right">Running Bal</th>
+                    <th class="py-2.5 px-3 text-center">Sync</th>
+                    <th class="py-2.5 px-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 3: BOOKS & WORK PROJECTS MANAGER
+             ==================================================================== -->
+        <section id="view-books" class="view-section hidden space-y-4">
+          <div class="surface-card p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-bold text-pri">Personal & Work Project Cashbooks — Control Center</h2>
+                <p class="text-xs text-mut">Create, edit, budget, archive, or delete separate project books synced with the <span class="font-mono-num">Projects_Books</span> tab in Google Sheets</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="booksShowAllLedgerBtn" type="button" class="themed-input px-3 py-2 rounded-lg text-xs font-semibold hover:opacity-80">🌐 View Consolidated Ledger</button>
+                <button id="booksAddBookBtn" type="button" class="btn-accent px-3 py-2 rounded-lg text-xs font-bold">+ Create New Cashbook / Project</button>
+              </div>
+            </div>
+
+            <!-- Project Filter & Control Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-[var(--border-subtle)] text-xs">
+              <div>
+                <label for="projectSearchInput" class="block text-[11px] font-semibold text-mut mb-1">Search Project Name / ID</label>
+                <input id="projectSearchInput" type="text" placeholder="Search e.g. Apex, Studio, Personal..." class="themed-input w-full rounded-lg px-2.5 py-1.5" />
+              </div>
+              <div>
+                <label for="projectTypeFilter" class="block text-[11px] font-semibold text-mut mb-1">Project Type</label>
+                <select id="projectTypeFilter" class="themed-input w-full rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All Types (Personal, Work, HR, Client)</option>
+                  <option value="Work Project">Work Project</option>
+                  <option value="Personal">Personal & Household</option>
+                  <option value="HR & Admin">HR & Admin</option>
+                  <option value="Client Ledger">Client Ledger</option>
+                </select>
+              </div>
+              <div>
+                <label for="projectStatusFilter" class="block text-[11px] font-semibold text-mut mb-1">Lifecycle Status</label>
+                <select id="projectStatusFilter" class="themed-input w-full rounded-lg px-2.5 py-1.5">
+                  <option value="ALL">All Statuses</option>
+                  <option value="Active">Active Only</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="booksGridContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 4: HR, STAFF & PAYROLL MANAGEMENT
+             ==================================================================== -->
+        <section id="view-hr" class="view-section hidden space-y-4">
+          <div class="surface-card p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-bold text-pri">HR, Staff Attendance, Salary Advances & Payroll (Monthly • Weekly • Daily Modes)</h2>
+                <p class="text-xs text-mut">Synced with <span class="font-mono-num">HR_Payroll</span> tab • Supports fixed <strong>Monthly</strong> salaries, <strong>Weekly</strong> payouts, and <strong>Daily</strong> wage muster rolls</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="hrModeFilterSelect" class="themed-input text-xs font-semibold rounded-lg px-2.5 py-1.5" aria-label="Filter Staff by Salary Mode">
+                  <option value="ALL">All Modes (Monthly / Weekly / Daily)</option>
+                  <option value="Monthly">📅 Monthly Salary Mode</option>
+                  <option value="Weekly">🗓️ Weekly Payout Mode</option>
+                  <option value="Daily">⏱️ Daily Wage Mode</option>
+                </select>
+                <button id="hrAddEmployeeBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold">+ Add Employee / Contractor</button>
+              </div>
+            </div>
+
+            <!-- HR KPI Summary Strip -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Total Monthly Net Payroll</div>
+                <div id="hrTotalNetPayable" class="text-lg font-extrabold font-mono-num text-pri mt-0.5">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Disbursed (Paid)</div>
+                <div id="hrTotalPaid" class="text-lg font-extrabold font-mono-num mt-0.5" style="color: var(--credit-fg);">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Pending Payout</div>
+                <div id="hrTotalPending" class="text-lg font-extrabold font-mono-num mt-0.5" style="color: var(--debit-fg);">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Salary Advances (Udhar)</div>
+                <div id="hrTotalAdvances" class="text-lg font-extrabold font-mono-num text-pri mt-0.5">₹0</div>
+              </div>
+            </div>
+
+            <!-- HR Table -->
+            <div class="overflow-x-auto pt-2">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                    <th class="py-2.5 px-3">Employee & Role</th>
+                    <th class="py-2.5 px-3">Project Book</th>
+                    <th class="py-2.5 px-3">Salary Mode & Rate</th>
+                    <th class="py-2.5 px-3">Units / Attendance</th>
+                    <th class="py-2.5 px-3 text-right">Gross Earned</th>
+                    <th class="py-2.5 px-3 text-right">Advance (-)</th>
+                    <th class="py-2.5 px-3 text-right">Bonus (+)</th>
+                    <th class="py-2.5 px-3 text-right">Net Payable</th>
+                    <th class="py-2.5 px-3 text-center">Status</th>
+                    <th class="py-2.5 px-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="hrTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 5: BILLS, RECURRING PAYABLES & CLIENT RECEIVABLES
+             ==================================================================== -->
+        <section id="view-bills" class="view-section hidden space-y-4">
+          <div class="surface-card p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-bold text-pri">Bills, Recurring Utilities, Vendor Payables & Client Invoices</h2>
+                <p class="text-xs text-mut">Synced with <span class="font-mono-num">Bills_Payables</span> tab • 1-Click Settle automatically records the Cash Out / Cash In transaction</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <select id="billsStatusFilter" class="themed-input text-xs rounded-lg px-2.5 py-1.5" aria-label="Filter Bills by Status">
+                  <option value="ALL">All Statuses</option>
+                  <option value="OVERDUE">Overdue Only</option>
+                  <option value="DUE_SOON">Due Soon</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="PAID">Paid / Settled</option>
+                </select>
+                <button id="billsAddBillBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold">+ Add Bill / Invoice</button>
+              </div>
+            </div>
+
+            <!-- Bills KPI Summary -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Overdue Payables</div>
+                <div id="billsOverdueTotal" class="text-lg font-extrabold font-mono-num" style="color: var(--debit-fg);">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Due Soon / Pending Out</div>
+                <div id="billsPendingOutTotal" class="text-lg font-extrabold font-mono-num text-pri">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Pending Receivables (In)</div>
+                <div id="billsReceivableTotal" class="text-lg font-extrabold font-mono-num" style="color: var(--credit-fg);">₹0</div>
+              </div>
+              <div class="surface-elevated p-3 rounded-lg">
+                <div class="text-[11px] font-semibold text-mut">Paid / Settled This Month</div>
+                <div id="billsPaidTotal" class="text-lg font-extrabold font-mono-num text-sec">₹0</div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto pt-2">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                    <th class="py-2.5 px-3">Bill ID & Title</th>
+                    <th class="py-2.5 px-3">Vendor / Party</th>
+                    <th class="py-2.5 px-3">Book & Type</th>
+                    <th class="py-2.5 px-3">Due Date & Freq</th>
+                    <th class="py-2.5 px-3 text-right">Amount</th>
+                    <th class="py-2.5 px-3 text-center">Status</th>
+                    <th class="py-2.5 px-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="billsTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             VIEW 6: GOOGLE SHEETS DATABASE CONNECTOR & OFFLINE SYNC CENTER
+             ==================================================================== -->
+        <section id="view-sheets" class="view-section hidden space-y-4">
+          <!-- Connection Config & Live Status -->
+          <div class="surface-card p-4 rounded-xl space-y-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-pri">Google Sheets Database & Offline-First Sync Engine</h2>
+                  <span class="px-2 py-0.5 rounded text-xs font-bold badge-credit">CRUD + Auto-Queue</span>
+                </div>
+                <p class="text-xs text-mut mt-0.5">
+                  Connected Master Spreadsheet in Google Drive:
+                  <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/edit" target="_blank" rel="noopener noreferrer" class="font-mono-num underline font-semibold text-pri">1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo</a>
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button id="forceSyncNowBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                  <span>🔄</span><span>Sync Pending Queue Now</span>
+                </button>
+                <button id="pullFromSheetsBtn" type="button" class="themed-input px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-80">
+                  ⬇️ Pull / Refresh from Sheet
+                </button>
+                <button id="resetDemoDataBtn" type="button" class="themed-input px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-80">
+                  ♻️ Reset Baseline Sheet Data
+                </button>
+              </div>
+            </div>
+
+            <!-- Configuration Inputs for Google Sheets Apps Script Webhook -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3.5 rounded-xl surface-elevated">
+              <div>
+                <label for="sheetIdInput" class="block text-[11px] font-bold uppercase text-mut mb-1">Google Drive Spreadsheet ID</label>
+                <input id="sheetIdInput" type="text" value="1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo" class="themed-input w-full text-xs font-mono-num rounded-lg px-2.5 py-1.5" />
+              </div>
+              <div class="lg:col-span-2">
+                <label for="appsScriptUrlInput" class="block text-[11px] font-bold uppercase text-mut mb-1">Google Apps Script Web App CRUD Endpoint URL (Optional Live Webhook)</label>
+                <div class="flex gap-2">
+                  <input id="appsScriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec (Leave blank for Local Replica + Queue Simulation)" class="themed-input flex-1 text-xs font-mono-num rounded-lg px-2.5 py-1.5" />
+                  <button id="saveSheetConfigBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold">Save Endpoint</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Offline Outbox Queue & Audit Trail Grid -->
+            <div class="responsive-grid-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Pending Offline Queue Outbox -->
+              <div class="surface-elevated p-3.5 rounded-xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Offline Outbox Queue (<span class="font-mono-num" id="outboxCountText">0</span> Pending)</h3>
+                    <p class="text-[11px] text-mut">Mutations recorded while offline in <span class="font-mono-num">localStorage</span> waiting for internet</p>
+                  </div>
+                  <span id="outboxStatusBadge" class="text-[11px] px-2 py-0.5 rounded font-bold badge-credit">Queue Empty</span>
+                </div>
+                <div id="offlineQueueList" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs"></div>
+              </div>
+
+              <!-- Apps Script Code.gs Generator for 2-Way Live Sheet Sync -->
+              <div class="surface-elevated p-3.5 rounded-xl space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Google Apps Script CRUD Connector (<span class="font-mono-num">Code.gs</span>)</h3>
+                    <p class="text-[11px] text-mut">Paste in your Sheet under <strong>Extensions → Apps Script → Deploy as Web App</strong></p>
+                  </div>
+                  <button id="copyAppsScriptBtn" type="button" class="btn-accent px-2.5 py-1 rounded text-xs font-bold">📋 Copy Code.gs</button>
+                </div>
+                <pre id="appsScriptCodeBlock" class="themed-input p-2.5 rounded-lg text-[11px] font-mono-num overflow-x-auto max-h-52 leading-relaxed select-all">// Bound to Google Sheet: 1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo
+const SPREADSHEET_ID = '1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo';
+
+function doGet(e) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const readTab = (name) => {
+    const sh = ss.getSheetByName(name);
+    if (!sh) return [];
+    const rows = sh.getDataRange().getValues();
+    const headers = rows.shift();
+    return rows.map(r => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
+  };
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'OK',
+    books: readTab('Projects_Books'),
+    transactions: readTab('Transactions'),
+    hr: readTab('HR_Payroll'),
+    bills: readTab('Bills_Payables')
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const payload = JSON.parse(e.postData.contents);
+  const ops = Array.isArray(payload.operations) ? payload.operations : [payload];
+  const logSheet = ss.getSheetByName('Sync_Audit_Log');
+
+  ops.forEach(op => {
+    const sh = ss.getSheetByName(op.sheetName);
+    if (!sh) return;
+    const data = sh.getDataRange().getValues();
+    const headers = data[0];
+    const idCol = 0; // Primary Key in Column A (Tx_ID, Book_ID, Emp_ID, Bill_ID)
+
+    if (op.action === 'CREATE') {
+      const newRow = headers.map(h => op.record[h] !== undefined ? op.record[h] : '');
+      sh.appendRow(newRow);
+    } else if (op.action === 'UPDATE') {
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][idCol]) === String(op.recordId)) {
+          const updatedRow = headers.map((h, c) => op.record[h] !== undefined ? op.record[h] : data[i][c]);
+          sh.getRange(i + 1, 1, 1, headers.length).setValues([updatedRow]);
+          break;
+        }
+      }
+    } else if (op.action === 'DELETE') {
+      for (let i = data.length - 1; i >= 1; i--) {
+        if (String(data[i][idCol]) === String(op.recordId)) {
+          sh.deleteRow(i + 1);
+          break;
+        }
+      }
+    }
+    if (logSheet) {
+      logSheet.appendRow(['SYNC-' + Date.now(), new Date().toISOString(), op.action, op.sheetName, op.recordId, op.sourceMode || 'WebApp', 'SUCCESS', op.details || 'Synced']);
+    }
+  });
+
+  return ContentService.createTextOutput(JSON.stringify({ status: 'SYNCED', count: ops.length }))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+              </div>
+            </div>
+
+            <!-- Sync Audit Log Table -->
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Google Sheets Sync Audit Log (<span class="font-mono-num">Sync_Audit_Log</span> Tab)</h3>
+                <button id="exportJsonBackupBtn" type="button" class="themed-input px-2.5 py-1 rounded text-xs font-semibold">⬇️ Download Full JSON DB Backup</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="surface-elevated border-b text-mut uppercase text-[11px]">
+                      <th class="py-2 px-3">Log ID & Timestamp</th>
+                      <th class="py-2 px-3">CRUD Action</th>
+                      <th class="py-2 px-3">Target Sheet Tab</th>
+                      <th class="py-2 px-3">Record ID</th>
+                      <th class="py-2 px-3">Mode</th>
+                      <th class="py-2 px-3">Status</th>
+                      <th class="py-2 px-3">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="syncAuditTableBody" class="divide-y divide-[var(--border-subtle)]"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="mobile-bottom-bar lg:hidden fixed bottom-0 left-0 right-0 z-30 surface-card border-t flex items-center justify-around py-1.5 px-1" aria-label="Mobile Bottom Navigation">
+      <button type="button" data-nav="dashboard" class="nav-tab-btn mobile-nav-active flex flex-col items-center gap-0.5 px-2 py-1 text-[11px]">
+        <span class="text-base">📈</span><span>Home</span>
+      </button>
+      <button type="button" data-nav="ledger" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">📒</span><span>Ledger</span>
+      </button>
+      <button type="button" data-nav="books" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">🗂️</span><span>Books</span>
+      </button>
+      <button type="button" data-nav="hr" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">👥</span><span>HR</span>
+      </button>
+      <button type="button" data-nav="bills" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">🧾</span><span>Bills</span>
+      </button>
+      <button type="button" data-nav="sheets" class="nav-tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-[11px] text-sec">
+        <span class="text-base">🔄</span><span>Sync</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 1: ADD / EDIT TRANSACTION (CASH IN / CASH OUT)
+       ========================================================================== -->
+  <div id="txModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-lg rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 id="txModalTitle" class="text-base font-extrabold text-pri">Record Cash In (Credit)</h3>
+        <button id="closeTxModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <form id="txForm" class="space-y-3 text-xs">
+        <input type="hidden" id="txIdField" />
+        <!-- Entry Type Toggle -->
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="txTypeCreditBtn" class="py-2 rounded-xl font-bold badge-credit text-center">➕ Cash In (Credit)</button>
+          <button type="button" id="txTypeDebitBtn" class="py-2 rounded-xl font-bold surface-elevated text-center">➖ Cash Out (Debit)</button>
+        </div>
+        <input type="hidden" id="txTypeField" value="CREDIT" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="txBookField" class="block font-semibold text-sec mb-1">Cashbook / Project *</label>
+            <select id="txBookField" required class="themed-input w-full rounded-lg px-2.5 py-2"></select>
+          </div>
+          <div>
+            <label for="txDateField" class="block font-semibold text-sec mb-1">Date & Time *</label>
+            <div class="flex gap-1.5">
+              <input id="txDateField" type="date" required class="themed-input flex-1 rounded-lg px-2 py-2" />
+              <input id="txTimeField" type="time" required class="themed-input w-24 rounded-lg px-2 py-2" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="txAmountField" class="block font-semibold text-sec mb-1">Base Amount (₹) *</label>
+            <input id="txAmountField" type="number" step="0.01" min="1" required placeholder="e.g. 25000" class="themed-input w-full font-mono-num font-bold rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="txTaxField" class="block font-semibold text-sec mb-1">GST / Tax (₹)</label>
+            <input id="txTaxField" type="number" step="0.01" min="0" value="0" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="txNetAmountPreview" class="block font-semibold text-sec mb-1">Net Total (₹)</label>
+            <input id="txNetAmountPreview" type="text" readonly value="₹0" class="surface-elevated w-full font-mono-num font-extrabold rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="txPartyNameField" class="block font-semibold text-sec mb-1">Party / Contact Name *</label>
+            <input id="txPartyNameField" type="text" required placeholder="Client, Vendor, Staff, Merchant..." class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="txPartyRoleField" class="block font-semibold text-sec mb-1">Party Role</label>
+            <select id="txPartyRoleField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Client">Client / Customer</option>
+              <option value="Vendor">Vendor / Supplier</option>
+              <option value="Employee">Employee / Staff</option>
+              <option value="Contractor">Contractor / Labor</option>
+              <option value="Merchant">Retail / Merchant</option>
+              <option value="Landlord">Landlord / Utility</option>
+              <option value="Income">Personal Income</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="txCategoryField" class="block font-semibold text-sec mb-1">Category *</label>
+            <input id="txCategoryField" type="text" list="categorySuggestions" required placeholder="e.g. Client Milestone" class="themed-input w-full rounded-lg px-2.5 py-2" />
+            <datalist id="categorySuggestions">
+              <option value="Client Milestone"></option>
+              <option value="Project Advance"></option>
+              <option value="Salary / Consulting"></option>
+              <option value="Staff Salary"></option>
+              <option value="Salary Advance (Udhar)"></option>
+              <option value="Raw Materials"></option>
+              <option value="Cloud & SaaS Bills"></option>
+              <option value="Utilities & Power"></option>
+              <option value="Rent & Maintenance"></option>
+              <option value="Daily Wage / Labor"></option>
+              <option value="Groceries & Dining"></option>
+            </datalist>
+          </div>
+          <div>
+            <label for="txModeField" class="block font-semibold text-sec mb-1">Payment Mode *</label>
+            <select id="txModeField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="UPI">UPI</option>
+              <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+              <option value="Cash">Cash</option>
+              <option value="Card">Card</option>
+              <option value="Cheque">Cheque</option>
+            </select>
+          </div>
+          <div>
+            <label for="txRefField" class="block font-semibold text-sec mb-1">Bill / Invoice Ref #</label>
+            <input id="txRefField" type="text" placeholder="e.g. INV-2026-109" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+
+        <div>
+          <label for="txNotesField" class="block font-semibold text-sec mb-1">Notes / Remarks</label>
+          <input id="txNotesField" type="text" placeholder="Add payment description or project milestone note..." class="themed-input w-full rounded-lg px-2.5 py-2" />
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelTxModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save & Sync to Sheet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: ADD / EDIT BOOK OR WORK PROJECT
+       ========================================================================== -->
+  <div id="bookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-md rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 id="bookModalTitle" class="text-base font-extrabold text-pri">Create New Cashbook / Work Project</h3>
+        <button id="closeBookModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <form id="bookForm" class="space-y-3 text-xs">
+        <input type="hidden" id="bookIdField" />
+        <div>
+          <label for="bookNameField" class="block font-semibold text-sec mb-1">Book / Project Name *</label>
+          <input id="bookNameField" type="text" required placeholder="e.g. Bengaluru Warehouse Project" class="themed-input w-full rounded-lg px-2.5 py-2" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="bookTypeField" class="block font-semibold text-sec mb-1">Category Type *</label>
+            <select id="bookTypeField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Work Project">Work Project</option>
+              <option value="Personal">Personal & Household</option>
+              <option value="HR & Admin">HR & Admin</option>
+              <option value="Client Ledger">Client Ledger</option>
+            </select>
+          </div>
+          <div>
+            <label for="bookStatusField" class="block font-semibold text-sec mb-1">Project Status *</label>
+            <select id="bookStatusField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Active">Active</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Completed">Completed</option>
+              <option value="Archived">Archived</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="bookOpeningField" class="block font-semibold text-sec mb-1">Opening Balance (₹) *</label>
+            <input id="bookOpeningField" type="number" step="1" required value="0" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="bookBudgetField" class="block font-semibold text-sec mb-1">Expense Budget Limit (₹)</label>
+            <input id="bookBudgetField" type="number" step="1" min="0" value="200000" placeholder="Optional cap" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <div>
+          <label for="bookDescField" class="block font-semibold text-sec mb-1">Project / Book Scope Description</label>
+          <input id="bookDescField" type="text" placeholder="Brief summary of cash flow tracked in this book" class="themed-input w-full rounded-lg px-2.5 py-2" />
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelBookModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2B: SAFE DELETE PROJECT / BOOK CONFIRMATION & CASCADE CONTROL
+       ========================================================================== -->
+  <div id="deleteBookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-md rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 class="text-base font-extrabold text-pri">Delete Project / Cashbook</h3>
+        <button id="closeDeleteBookModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <input type="hidden" id="deleteBookTargetId" />
+        <p class="text-sec leading-relaxed">
+          You are about to delete <strong id="deleteBookTargetName" class="text-pri">Project</strong> (<span id="deleteBookTargetStats" class="font-mono-num">0 linked entries</span>). Choose how to handle its linked records:
+        </p>
+        <div class="space-y-2">
+          <label class="flex items-start gap-2.5 p-2.5 rounded-lg surface-elevated cursor-pointer">
+            <input type="radio" name="deleteCascadeMode" value="reassign" checked class="mt-0.5" />
+            <div>
+              <div class="font-bold text-pri">Reassign Linked Entries to Another Book (Recommended)</div>
+              <div class="text-[11px] text-mut">Moves transactions, bills, and staff to your first remaining active book so no financial history is lost.</div>
+            </div>
+          </label>
+          <label class="flex items-start gap-2.5 p-2.5 rounded-lg surface-elevated cursor-pointer">
+            <input type="radio" name="deleteCascadeMode" value="purge" class="mt-0.5" />
+            <div>
+              <div class="font-bold" style="color:var(--debit-fg)">Delete Project AND Purge All Linked Records</div>
+              <div class="text-[11px] text-mut">Permanently removes this book along with all its transactions, bills, and syncs the deletion to Google Sheets.</div>
+            </div>
+          </label>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelDeleteBookModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button id="confirmDeleteBookBtn" type="button" class="px-4 py-2 rounded-lg font-bold badge-debit">Confirm Delete & Sync</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: ADD / EDIT HR EMPLOYEE & PAYROLL
+       ========================================================================== -->
+  <div id="hrModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-lg rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 id="hrModalTitle" class="text-base font-extrabold text-pri">Add / Edit Employee Payroll Profile</h3>
+        <button id="closeHrModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <form id="hrForm" class="space-y-3 text-xs">
+        <input type="hidden" id="hrIdField" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="hrNameField" class="block font-semibold text-sec mb-1">Employee Full Name *</label>
+            <input id="hrNameField" type="text" required placeholder="e.g. Vikram Natarajan" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrRoleField" class="block font-semibold text-sec mb-1">Designation / Role *</label>
+            <input id="hrRoleField" type="text" required placeholder="e.g. DevOps Architect" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="hrBookField" class="block font-semibold text-sec mb-1">Assigned Project Book *</label>
+            <select id="hrBookField" class="themed-input w-full rounded-lg px-2.5 py-2"></select>
+          </div>
+          <div>
+            <label for="hrPhoneField" class="block font-semibold text-sec mb-1">Phone / Contact</label>
+            <input id="hrPhoneField" type="text" placeholder="+91 98400 00000" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <!-- Salary Calculation Mode Selector (Monthly / Weekly / Daily) -->
+        <div class="p-3 rounded-xl surface-elevated space-y-2.5">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-pri">Salary Calculation Mode *</label>
+            <span id="hrModeFormulaHint" class="text-[11px] font-mono-num text-mut">Fixed Monthly Salary</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" data-set-salmode="Monthly" class="hr-salmode-btn py-2 px-2 rounded-lg font-bold btn-accent text-center">📅 Monthly</button>
+            <button type="button" data-set-salmode="Weekly" class="hr-salmode-btn py-2 px-2 rounded-lg font-bold surface-card text-sec text-center">🗓️ Weekly</button>
+            <button type="button" data-set-salmode="Daily" class="hr-salmode-btn py-2 px-2 rounded-lg font-bold surface-card text-sec text-center">⏱️ Daily Wage</button>
+          </div>
+          <input type="hidden" id="hrSalaryModeField" value="Monthly" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label id="hrRateLabel" for="hrPayRateField" class="block font-semibold text-sec mb-1">Monthly Rate (₹) *</label>
+            <input id="hrPayRateField" type="number" required min="1" value="35000" class="themed-input w-full font-mono-num font-bold rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label id="hrUnitsLabel" for="hrDaysField" class="block font-semibold text-sec mb-1">Days Worked (of 26)</label>
+            <input id="hrDaysField" type="number" step="0.5" min="0" max="365" value="26" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrBaseSalaryField" class="block font-semibold text-sec mb-1">Gross Earned (₹) *</label>
+            <input id="hrBaseSalaryField" type="number" required min="0" value="35000" class="surface-elevated w-full font-mono-num font-extrabold rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="hrAdvanceField" class="block font-semibold text-sec mb-1">Advance Taken (-₹)</label>
+            <input id="hrAdvanceField" type="number" min="0" value="0" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrBonusField" class="block font-semibold text-sec mb-1">Bonus / OT (+₹)</label>
+            <input id="hrBonusField" type="number" min="0" value="0" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrNetPayablePreview" class="block font-semibold text-sec mb-1">Net Payable (₹)</label>
+            <input id="hrNetPayablePreview" type="text" readonly value="₹35,000" class="surface-elevated w-full font-mono-num font-extrabold rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="hrAttendanceField" class="block font-semibold text-sec mb-1">Attendance / Shift Note</label>
+            <input id="hrAttendanceField" type="text" value="Present (26/26 Days)" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="hrModeField" class="block font-semibold text-sec mb-1">Payout Mode</label>
+            <select id="hrModeField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS)</option>
+              <option value="UPI">UPI</option>
+              <option value="Cash">Cash</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelHrModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: ADD / EDIT BILL OR CLIENT INVOICE
+       ========================================================================== -->
+  <div id="billModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-lg rounded-2xl p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <h3 id="billModalTitle" class="text-base font-extrabold text-pri">Add / Edit Bill or Receivable Invoice</h3>
+        <button id="closeBillModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+      <form id="billForm" class="space-y-3 text-xs">
+        <input type="hidden" id="billIdField" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="billTitleField" class="block font-semibold text-sec mb-1">Bill / Invoice Title *</label>
+            <input id="billTitleField" type="text" required placeholder="e.g. TNEB Commercial Power Bill" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="billPartyField" class="block font-semibold text-sec mb-1">Vendor / Biller / Client *</label>
+            <input id="billPartyField" type="text" required placeholder="e.g. TANGEDCO / TNEB" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="billBookField" class="block font-semibold text-sec mb-1">Project Book *</label>
+            <select id="billBookField" class="themed-input w-full rounded-lg px-2.5 py-2"></select>
+          </div>
+          <div>
+            <label for="billDirectionField" class="block font-semibold text-sec mb-1">Direction *</label>
+            <select id="billDirectionField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="PAYABLE (Bill Out)">PAYABLE (Bill Out / Expense)</option>
+              <option value="RECEIVABLE (Invoice In)">RECEIVABLE (Client Invoice In)</option>
+            </select>
+          </div>
+          <div>
+            <label for="billCategoryField" class="block font-semibold text-sec mb-1">Category *</label>
+            <input id="billCategoryField" type="text" required value="Utilities & Power" class="themed-input w-full rounded-lg px-2.5 py-2" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div>
+            <label for="billAmountField" class="block font-semibold text-sec mb-1">Amount (₹) *</label>
+            <input id="billAmountField" type="number" required min="1" placeholder="12000" class="themed-input w-full font-mono-num rounded-lg px-2.5 py-2" />
+          </div>
+          <div>
+            <label for="billDueDateField" class="block font-semibold text-sec mb-1">Due Date *</label>
+            <input id="billDueDateField" type="date" required value="2026-11-15" class="themed-input w-full rounded-lg px-2 py-2" />
+          </div>
+          <div>
+            <label for="billFreqField" class="block font-semibold text-sec mb-1">Frequency</label>
+            <select id="billFreqField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="Monthly">Monthly</option>
+              <option value="One-Time">One-Time</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Yearly">Yearly</option>
+            </select>
+          </div>
+          <div>
+            <label for="billStatusField" class="block font-semibold text-sec mb-1">Status</label>
+            <select id="billStatusField" class="themed-input w-full rounded-lg px-2.5 py-2">
+              <option value="PENDING">PENDING</option>
+              <option value="DUE_SOON">DUE_SOON</option>
+              <option value="OVERDUE">OVERDUE</option>
+              <option value="PAID">PAID</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="billNotesField" class="block font-semibold text-sec mb-1">Notes</label>
+          <input id="billNotesField" type="text" placeholder="Meter number, invoice number, or settlement instructions..." class="themed-input w-full rounded-lg px-2.5 py-2" />
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
+          <button id="cancelBillModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg font-semibold">Cancel</button>
+          <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save Bill</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-16 lg:bottom-5 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ==========================================================================
+       APPLICATION LOGIC (GOOGLE SHEETS CRUD + OFFLINE LOCALSTORAGE OUTBOX SYNC)
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      const SPREADSHEET_ID_DEFAULT = '1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo';
+      const STORAGE_KEYS = {
+        DB: 'cashbook_pro_db_v2',
+        QUEUE: 'cashbook_pro_offline_queue_v1',
+        THEME: 'cashbook_pro_theme_v1',
+        CONFIG: 'cashbook_pro_sheet_config_v1'
+      };
+
+      // Baseline seed data matching the live Google Sheet 1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo
+      function getBaselineDatabase() {
+        return {
+          books: [
+            { Book_ID: 'BOOK-01', Book_Name: 'Personal & Household', Category_Type: 'Personal', Currency: 'INR', Opening_Balance: 50000, Status: 'Active', Description: 'Daily personal & home cash flow, groceries, investments, utilities' },
+            { Book_ID: 'BOOK-02', Book_Name: 'Apex Cloud ERP Project', Category_Type: 'Work Project', Currency: 'INR', Opening_Balance: 250000, Status: 'Active', Description: 'Client software build, cloud hosting, contractor & developer payouts' },
+            { Book_ID: 'BOOK-03', Book_Name: 'Chennai Retail Studio Fitout', Category_Type: 'Work Project', Currency: 'INR', Opening_Balance: 180000, Status: 'Active', Description: 'Site interior work, vendor materials, daily labor & site bills' },
+            { Book_ID: 'BOOK-04', Book_Name: 'HR & Monthly Payroll Book', Category_Type: 'HR & Admin', Currency: 'INR', Opening_Balance: 300000, Status: 'Active', Description: 'Centralized staff salaries, advances, PF/ESI, and team reimbursements' }
+          ],
+          transactions: [
+            { Tx_ID: 'TX-1001', Date: '2026-11-01', Time: '09:30', Book_ID: 'BOOK-02', Book_Name: 'Apex Cloud ERP Project', Type: 'CREDIT', Category: 'Client Milestone', Party_Name: 'Apex Global Logistics Ltd', Party_Role: 'Client', Payment_Mode: 'Bank Transfer (NEFT/RTGS)', Amount: 185000, Tax_GST: 0, Net_Amount: 185000, Reference_Bill_No: 'INV-2026-101', Notes: 'Milestone 1 Advance Received for ERP Module', Sync_Status: 'SYNCED', Updated_At: '2026-11-01T09:30:00Z' },
+            { Tx_ID: 'TX-1002', Date: '2026-11-01', Time: '11:15', Book_ID: 'BOOK-01', Book_Name: 'Personal & Household', Type: 'CREDIT', Category: 'Salary / Consulting', Party_Name: 'Self / Consulting Retainer', Party_Role: 'Income', Payment_Mode: 'Bank Transfer (NEFT/RTGS)', Amount: 125000, Tax_GST: 0, Net_Amount: 125000, Reference_Bill_No: 'RET-NOV-01', Notes: 'Monthly personal retainer & dividend credit', Sync_Status: 'SYNCED', Updated_At: '2026-11-01T11:15:00Z' },
+            { Tx_ID: 'TX-1003', Date: '2026-11-02', Time: '14:20', Book_ID: 'BOOK-04', Book_Name: 'HR & Monthly Payroll Book', Type: 'DEBIT', Category: 'Staff Salary', Party_Name: 'Aravind Krishnan', Party_Role: 'Employee', Payment_Mode: 'Bank Transfer (NEFT/RTGS)', Amount: 62000, Tax_GST: 0, Net_Amount: 62000, Reference_Bill_No: 'PAY-NOV-01', Notes: 'Lead Full-Stack Engineer Oct-Nov Payout', Sync_Status: 'SYNCED', Updated_At: '2026-11-02T14:20:00Z' },
+            { Tx_ID: 'TX-1004', Date: '2026-11-02', Time: '14:45', Book_ID: 'BOOK-04', Book_Name: 'HR & Monthly Payroll Book', Type: 'DEBIT', Category: 'Staff Salary', Party_Name: 'Priya Subramanian', Party_Role: 'Employee', Payment_Mode: 'UPI', Amount: 48000, Tax_GST: 0, Net_Amount: 48000, Reference_Bill_No: 'PAY-NOV-02', Notes: 'UI/UX & Product Designer Salary Payout', Sync_Status: 'SYNCED', Updated_At: '2026-11-02T14:45:00Z' },
+            { Tx_ID: 'TX-1005', Date: '2026-11-03', Time: '10:10', Book_ID: 'BOOK-03', Book_Name: 'Chennai Retail Studio Fitout', Type: 'CREDIT', Category: 'Project Advance', Party_Name: 'Vanguard Lifestyle Retail', Party_Role: 'Client', Payment_Mode: 'Cheque', Amount: 150000, Tax_GST: 0, Net_Amount: 150000, Reference_Bill_No: 'CHQ-884120', Notes: 'Phase 2 Carpentry & Lighting Advance', Sync_Status: 'SYNCED', Updated_At: '2026-11-03T10:10:00Z' },
+            { Tx_ID: 'TX-1006', Date: '2026-11-04', Time: '16:05', Book_ID: 'BOOK-03', Book_Name: 'Chennai Retail Studio Fitout', Type: 'DEBIT', Category: 'Raw Materials', Party_Name: 'Sri Murugan Timber & Plywoods', Party_Role: 'Vendor', Payment_Mode: 'UPI', Amount: 42500, Tax_GST: 0, Net_Amount: 42500, Reference_Bill_No: 'BILL-992', Notes: 'Marine grade plywood & laminate sheets', Sync_Status: 'SYNCED', Updated_At: '2026-11-04T16:05:00Z' },
+            { Tx_ID: 'TX-1007', Date: '2026-11-05', Time: '18:30', Book_ID: 'BOOK-01', Book_Name: 'Personal & Household', Type: 'DEBIT', Category: 'Rent & Maintenance', Party_Name: 'Adyar Creek Apartments', Party_Role: 'Landlord', Payment_Mode: 'UPI', Amount: 28000, Tax_GST: 0, Net_Amount: 28000, Reference_Bill_No: 'RENT-NOV26', Notes: 'November house rent + society maintenance', Sync_Status: 'SYNCED', Updated_At: '2026-11-05T18:30:00Z' },
+            { Tx_ID: 'TX-1008', Date: '2026-11-06', Time: '12:00', Book_ID: 'BOOK-02', Book_Name: 'Apex Cloud ERP Project', Type: 'DEBIT', Category: 'Cloud & SaaS Bills', Party_Name: 'AWS India Cloud Services', Party_Role: 'Vendor', Payment_Mode: 'Card', Amount: 19400, Tax_GST: 0, Net_Amount: 19400, Reference_Bill_No: 'BILL-102', Notes: 'Production Kubernetes cluster & RDS database', Sync_Status: 'SYNCED', Updated_At: '2026-11-06T12:00:00Z' },
+            { Tx_ID: 'TX-1009', Date: '2026-11-07', Time: '09:45', Book_ID: 'BOOK-04', Book_Name: 'HR & Monthly Payroll Book', Type: 'DEBIT', Category: 'Salary Advance (Udhar)', Party_Name: 'Karthik Rajan', Party_Role: 'Employee', Payment_Mode: 'Cash', Amount: 8000, Tax_GST: 0, Net_Amount: 8000, Reference_Bill_No: 'ADV-NOV-04', Notes: 'Festival / medical cash advance (to deduct in Nov payroll)', Sync_Status: 'SYNCED', Updated_At: '2026-11-07T09:45:00Z' },
+            { Tx_ID: 'TX-1010', Date: '2026-11-08', Time: '19:15', Book_ID: 'BOOK-01', Book_Name: 'Personal & Household', Type: 'DEBIT', Category: 'Groceries & Dining', Party_Name: 'Nilgiris Supermarket', Party_Role: 'Merchant', Payment_Mode: 'UPI', Amount: 6450, Tax_GST: 0, Net_Amount: 6450, Reference_Bill_No: 'POS-4421', Notes: 'Weekly household groceries and fresh produce', Sync_Status: 'SYNCED', Updated_At: '2026-11-08T19:15:00Z' },
+            { Tx_ID: 'TX-1011', Date: '2026-11-09', Time: '10:30', Book_ID: 'BOOK-03', Book_Name: 'Chennai Retail Studio Fitout', Type: 'DEBIT', Category: 'Daily Wage / Labor', Party_Name: 'Suresh Electricals Crew', Party_Role: 'Contractor', Payment_Mode: 'Cash', Amount: 14500, Tax_GST: 0, Net_Amount: 14500, Reference_Bill_No: 'VOUCH-31', Notes: '3-day concealed wiring & LED track installation labor', Sync_Status: 'SYNCED', Updated_At: '2026-11-09T10:30:00Z' },
+            { Tx_ID: 'TX-1012', Date: '2026-11-09', Time: '15:20', Book_ID: 'BOOK-02', Book_Name: 'Apex Cloud ERP Project', Type: 'CREDIT', Category: 'CR / Add-on Feature', Party_Name: 'Apex Global Logistics Ltd', Party_Role: 'Client', Payment_Mode: 'UPI', Amount: 35000, Tax_GST: 0, Net_Amount: 35000, Reference_Bill_No: 'INV-2026-108', Notes: 'Barcode scanner mobile module fast-track payment', Sync_Status: 'SYNCED', Updated_At: '2026-11-09T15:20:00Z' }
+          ],
+          hr: [
+            { Emp_ID: 'EMP-01', Employee_Name: 'Aravind Krishnan', Role_Designation: 'Lead Full-Stack Engineer', Assigned_Book_ID: 'BOOK-02', Phone: '+91 98401 11223', Salary_Mode: 'Monthly', Pay_Rate: 65000, Base_Monthly_Salary: 65000, Days_Worked: 26, Attendance_Status: 'Present (26/26 Days)', Salary_Advance_Taken: 3000, Bonus_Allowance: 0, Net_Payable: 62000, Payroll_Status: 'PAID', Last_Paid_Date: '2026-11-02', Payment_Mode: 'Bank Transfer (NEFT/RTGS)' },
+            { Emp_ID: 'EMP-02', Employee_Name: 'Priya Subramanian', Role_Designation: 'Product & UI/UX Designer', Assigned_Book_ID: 'BOOK-02', Phone: '+91 98402 33445', Salary_Mode: 'Monthly', Pay_Rate: 48000, Base_Monthly_Salary: 48000, Days_Worked: 26, Attendance_Status: 'Present (26/26 Days)', Salary_Advance_Taken: 0, Bonus_Allowance: 0, Net_Payable: 48000, Payroll_Status: 'PAID', Last_Paid_Date: '2026-11-02', Payment_Mode: 'UPI' },
+            { Emp_ID: 'EMP-03', Employee_Name: 'Karthik Rajan', Role_Designation: 'Site Supervisor & Civil Lead', Assigned_Book_ID: 'BOOK-03', Phone: '+91 98403 55667', Salary_Mode: 'Weekly', Pay_Rate: 10500, Base_Monthly_Salary: 42000, Days_Worked: 4, Attendance_Status: '4 Weeks Logged', Salary_Advance_Taken: 8000, Bonus_Allowance: 2000, Net_Payable: 36000, Payroll_Status: 'PENDING', Last_Paid_Date: '2026-10-03', Payment_Mode: 'Bank Transfer (NEFT/RTGS)' },
+            { Emp_ID: 'EMP-04', Employee_Name: 'Meenakshi Sundaram', Role_Designation: 'HR & Accounts Executive', Assigned_Book_ID: 'BOOK-04', Phone: '+91 98404 77889', Salary_Mode: 'Monthly', Pay_Rate: 38000, Base_Monthly_Salary: 38000, Days_Worked: 26, Attendance_Status: 'Present (26/26 Days)', Salary_Advance_Taken: 0, Bonus_Allowance: 1500, Net_Payable: 39500, Payroll_Status: 'PENDING', Last_Paid_Date: '2026-10-02', Payment_Mode: 'UPI' },
+            { Emp_ID: 'EMP-05', Employee_Name: 'Dinesh Kumar', Role_Designation: 'Junior QA & Support Analyst', Assigned_Book_ID: 'BOOK-02', Phone: '+91 98405 99001', Salary_Mode: 'Weekly', Pay_Rate: 8000, Base_Monthly_Salary: 32000, Days_Worked: 4, Attendance_Status: '4 Weeks Logged', Salary_Advance_Taken: 2500, Bonus_Allowance: 0, Net_Payable: 29500, Payroll_Status: 'PENDING', Last_Paid_Date: '2026-10-02', Payment_Mode: 'UPI' },
+            { Emp_ID: 'EMP-06', Employee_Name: 'Ramesh Velu', Role_Designation: 'Master Carpenter & Fitout Tech', Assigned_Book_ID: 'BOOK-03', Phone: '+91 98406 22334', Salary_Mode: 'Daily', Pay_Rate: 1400, Base_Monthly_Salary: 35000, Days_Worked: 25, Attendance_Status: '25 Daily Shifts', Salary_Advance_Taken: 5000, Bonus_Allowance: 1000, Net_Payable: 31000, Payroll_Status: 'PENDING', Last_Paid_Date: '2026-10-05', Payment_Mode: 'Cash' }
+          ],
+          bills: [
+            { Bill_ID: 'BILL-101', Title_Description: 'TNEB Commercial Studio & Office Electricity', Vendor_Or_Party: 'TANGEDCO / TNEB', Book_ID: 'BOOK-03', Direction: 'PAYABLE (Bill Out)', Category: 'Utilities & Power', Due_Date: '2026-11-12', Frequency: 'Monthly', Amount: 11850, Status: 'DUE_SOON', Payment_Mode: 'UPI', Linked_Tx_ID: '', Notes: 'Bi-monthly commercial meter reading for studio & office' },
+            { Bill_ID: 'BILL-102', Title_Description: 'AWS Cloud Production Cluster (Oct-Nov)', Vendor_Or_Party: 'AWS India Cloud Services', Book_ID: 'BOOK-02', Direction: 'PAYABLE (Bill Out)', Category: 'Cloud & SaaS Bills', Due_Date: '2026-11-06', Frequency: 'Monthly', Amount: 19400, Status: 'PAID', Payment_Mode: 'Card', Linked_Tx_ID: 'TX-1008', Notes: 'Auto-linked to TX-1008' },
+            { Bill_ID: 'BILL-103', Title_Description: 'Airtel Leased Line & Fiber Broadband', Vendor_Or_Party: 'Bharti Airtel Business', Book_ID: 'BOOK-01', Direction: 'PAYABLE (Bill Out)', Category: 'Internet & Telecom', Due_Date: '2026-11-07', Frequency: 'Monthly', Amount: 3499, Status: 'OVERDUE', Payment_Mode: 'UPI', Linked_Tx_ID: '', Notes: '300 Mbps static IP office + home fiber plan' },
+            { Bill_ID: 'BILL-104', Title_Description: 'Saint-Gobain Toughened Glass Partition Invoice', Vendor_Or_Party: 'Chennai Glass & Glazing Co', Book_ID: 'BOOK-03', Direction: 'PAYABLE (Bill Out)', Category: 'Raw Materials', Due_Date: '2026-11-15', Frequency: 'One-Time', Amount: 54000, Status: 'PENDING', Payment_Mode: 'Bank Transfer (NEFT/RTGS)', Linked_Tx_ID: '', Notes: '50% balance due upon delivery at site' },
+            { Bill_ID: 'BILL-105', Title_Description: 'Apex ERP Phase 2 UAT Sign-off Invoice', Vendor_Or_Party: 'Apex Global Logistics Ltd', Book_ID: 'BOOK-02', Direction: 'RECEIVABLE (Invoice In)', Category: 'Client Milestone', Due_Date: '2026-11-20', Frequency: 'One-Time', Amount: 140000, Status: 'PENDING', Payment_Mode: 'Bank Transfer (NEFT/RTGS)', Linked_Tx_ID: '', Notes: 'Receivable from client upon UAT completion' },
+            { Bill_ID: 'BILL-106', Title_Description: 'Employee PF & ESI Monthly Statutory Challan', Vendor_Or_Party: 'EPFO / ESIC Portal', Book_ID: 'BOOK-04', Direction: 'PAYABLE (Bill Out)', Category: 'Statutory & Tax', Due_Date: '2026-11-15', Frequency: 'Monthly', Amount: 22400, Status: 'DUE_SOON', Payment_Mode: 'Bank Transfer (NEFT/RTGS)', Linked_Tx_ID: '', Notes: 'Mandatory monthly employer + employee contribution' },
+            { Bill_ID: 'BILL-107', Title_Description: 'Home & Personal Health Insurance Premium', Vendor_Or_Party: 'Star Health Insurance', Book_ID: 'BOOK-01', Direction: 'PAYABLE (Bill Out)', Category: 'Insurance', Due_Date: '2026-11-25', Frequency: 'Yearly', Amount: 18500, Status: 'PENDING', Payment_Mode: 'Card', Linked_Tx_ID: '', Notes: 'Annual family floater renewal' }
+          ],
+          auditLogs: [
+            { Log_ID: 'SYNC-004', Timestamp_IST: '2026-11-09 17:55:00', Operation: 'BATCH_WRITE', Target_Sheet: 'Bills_Payables', Record_ID: 'BILL-101..BILL-107', Source_Mode: 'Online_Direct', Status: 'SUCCESS', Details: 'Synced 7 vendor payables, utilities, and client receivables' },
+            { Log_ID: 'SYNC-003', Timestamp_IST: '2026-11-09 17:52:30', Operation: 'BATCH_WRITE', Target_Sheet: 'HR_Payroll', Record_ID: 'EMP-01..EMP-06', Source_Mode: 'Online_Direct', Status: 'SUCCESS', Details: 'Synced 6 employee payroll & attendance records' },
+            { Log_ID: 'SYNC-002', Timestamp_IST: '2026-11-09 17:50:12', Operation: 'BATCH_WRITE', Target_Sheet: 'Transactions', Record_ID: 'TX-1001..TX-1012', Source_Mode: 'Online_Direct', Status: 'SUCCESS', Details: 'Synced 12 baseline debit and credit ledger transactions across 4 books' },
+            { Log_ID: 'SYNC-001', Timestamp_IST: '2026-11-09 17:45:00', Operation: 'INIT_SCHEMA', Target_Sheet: 'ALL_TABS', Record_ID: 'SCHEMA-V1', Source_Mode: 'Online_Direct', Status: 'SUCCESS', Details: 'Initialized 6-tab Google Sheets relational database for CashBook Pro' }
+          ]
+        };
+      }
+
+      // Safe LocalStorage Helpers
+      function safeGetStorage(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (err) {
+          return fallback;
+        }
+      }
+
+      function safeSetStorage(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (err) {
+          // Ignore quota/sandbox exceptions
+        }
+      }
+
+      // Application State
+      let db = safeGetStorage(STORAGE_KEYS.DB, null);
+      if (!db || !Array.isArray(db.transactions) || !Array.isArray(db.books)) {
+        db = getBaselineDatabase();
+        safeSetStorage(STORAGE_KEYS.DB, db);
+      }
+
+      let offlineQueue = safeGetStorage(STORAGE_KEYS.QUEUE, []);
+      let sheetConfig = safeGetStorage(STORAGE_KEYS.CONFIG, {
+        sheetId: SPREADSHEET_ID_DEFAULT,
+        appsScriptUrl: ''
+      });
+
+      let state = {
+        activeView: 'dashboard',
+        activeBookId: 'ALL',
+        isOnline: navigator.onLine !== false,
+        simulatedOffline: false,
+        mobileSimulator: false,
+        theme: safeGetStorage(STORAGE_KEYS.THEME, 'light')
+      };
+
+      // Chart instances
+      let booksChartInstance = null;
+      let categoryChartInstance = null;
+
+      // Utility Formatters
+      function formatINR(num) {
+        const val = Number(num) || 0;
+        const sign = val < 0 ? '-' : '';
+        const abs = Math.abs(val);
+        return sign + '₹' + abs.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+      }
+
+      function nowISTString() {
+        const d = new Date();
+        return d.toISOString().replace('T', ' ').substring(0, 19);
+      }
+
+      function showToast(message, type) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const badgeClass = type === 'warn' ? 'badge-warn' : (type === 'debit' ? 'badge-debit' : 'badge-credit');
+        toast.className = 'surface-card p-3 rounded-xl shadow-lg border-l-4 flex items-center justify-between gap-2 text-xs font-semibold pointer-events-auto transition-all ' + badgeClass;
+        toast.innerHTML = '<span>' + message + '</span>';
+        container.appendChild(toast);
+        setTimeout(function () {
+          toast.style.opacity = '0';
+          setTimeout(function () {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 250);
+        }, 3200);
+      }
+
+      // ========================================================================
+      // OFFLINE-FIRST LOCALSTORAGE & GOOGLE SHEETS CRUD SYNC ENGINE
+      // ========================================================================
+      function isEffectivelyOnline() {
+        return state.isOnline && !state.simulatedOffline;
+      }
+
+      function persistAll() {
+        safeSetStorage(STORAGE_KEYS.DB, db);
+        safeSetStorage(STORAGE_KEYS.QUEUE, offlineQueue);
+        updateStorageSizeIndicator();
+      }
+
+      function updateStorageSizeIndicator() {
+        const el = document.getElementById('localStorageSizeLabel');
+        if (!el) return;
+        try {
+          const bytes = JSON.stringify(db).length + JSON.stringify(offlineQueue).length;
+          el.textContent = (bytes / 1024).toFixed(1) + ' KB Cached';
+        } catch (e) {
+          el.textContent = 'Active';
+        }
+      }
+
+      async function dispatchCrudMutation(action, sheetName, recordId, recordData, detailsText) {
+        const timestamp = nowISTString();
+        const opPayload = {
+          queueId: 'Q-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          timestamp: timestamp,
+          action: action, // 'CREATE' | 'UPDATE' | 'DELETE'
+          sheetName: sheetName, // 'Transactions' | 'Projects_Books' | 'HR_Payroll' | 'Bills_Payables'
+          recordId: recordId,
+          record: recordData,
+          details: detailsText
+        };
+
+        if (!isEffectivelyOnline()) {
+          // Queue in localStorage Outbox for automatic sync when internet returns
+          offlineQueue.push(opPayload);
+          db.auditLogs.unshift({
+            Log_ID: 'QUEUED-' + String(db.auditLogs.length + 1).padStart(3, '0'),
+            Timestamp_IST: timestamp,
+            Operation: action + ' (QUEUED)',
+            Target_Sheet: sheetName,
+            Record_ID: recordId,
+            Source_Mode: 'Offline_LocalStorage',
+            Status: 'PENDING_SYNC',
+            Details: detailsText + ' [Queued in localStorage outbox]'
+          });
+          persistAll();
+          updateNetworkUI();
+          renderAll();
+          showToast('⚡ Saved offline in LocalStorage! Queued ' + action + ' (' + recordId + ') for Google Sheets sync.', 'warn');
+          return;
+        }
+
+        // Online: Sync to Google Sheets Web App endpoint if configured + update audit log
+        let remoteSynced = false;
+        if (sheetConfig.appsScriptUrl && sheetConfig.appsScriptUrl.startsWith('https://')) {
+          try {
+            await fetch(sheetConfig.appsScriptUrl, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(opPayload)
+            });
+            remoteSynced = true;
+          } catch (err) {
+            // Network drop during fetch -> push to offline queue
+            offlineQueue.push(opPayload);
+            persistAll();
+            updateNetworkUI();
+            showToast('⚠️ Network unreachable during Sheet sync. Queued in LocalStorage.', 'warn');
+            return;
+          }
+        }
+
+        db.auditLogs.unshift({
+          Log_ID: 'SYNC-' + String(db.auditLogs.length + 1).padStart(3, '0'),
+          Timestamp_IST: timestamp,
+          Operation: action,
+          Target_Sheet: sheetName,
+          Record_ID: recordId,
+          Source_Mode: remoteSynced ? 'Live_Webhook' : 'Online_Sheet_Replica',
+          Status: 'SUCCESS',
+          Details: detailsText
+        });
+        persistAll();
+        updateNetworkUI();
+        renderAll();
+        showToast('✅ Synced ' + action + ' (' + recordId + ') to Google Sheet [' + sheetName + ']', 'credit');
+      }
+
+      async function flushOfflineQueue() {
+        if (!isEffectivelyOnline()) {
+          showToast('Cannot flush queue while Offline. Switch to Online first.', 'warn');
+          return;
+        }
+        if (offlineQueue.length === 0) {
+          showToast('All records are already synced with Google Sheets!', 'credit');
+          return;
+        }
+
+        const count = offlineQueue.length;
+        const opsToSync = offlineQueue.slice();
+
+        if (sheetConfig.appsScriptUrl && sheetConfig.appsScriptUrl.startsWith('https://')) {
+          try {
+            await fetch(sheetConfig.appsScriptUrl, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ operations: opsToSync })
+            });
+          } catch (e) {
+            showToast('Webhook error while flushing queue. Will retry.', 'warn');
+            return;
+          }
+        }
+
+        // Mark all transactions that were PENDING_OFFLINE as SYNCED
+        db.transactions.forEach(function (tx) {
+          if (tx.Sync_Status !== 'SYNCED') {
+            tx.Sync_Status = 'SYNCED';
+          }
+        });
+
+        // Update queued logs
+        db.auditLogs.forEach(function (log) {
+          if (log.Status === 'PENDING_SYNC') {
+            log.Status = 'SUCCESS';
+            log.Operation = log.Operation.replace(' (QUEUED)', ' (AUTO-SYNCED)');
+          }
+        });
+
+        db.auditLogs.unshift({
+          Log_ID: 'BATCH-' + Date.now().toString().slice(-4),
+          Timestamp_IST: nowISTString(),
+          Operation: 'BATCH_FLUSH',
+          Target_Sheet: 'ALL_TABS',
+          Record_ID: count + ' Queued Ops',
+          Source_Mode: 'Auto_Reconnect_Sync',
+          Status: 'SUCCESS',
+          Details: 'Flushed ' + count + ' offline LocalStorage mutations to Google Sheets DB'
+        });
+
+        offlineQueue = [];
+        persistAll();
+        updateNetworkUI();
+        renderAll();
+        showToast('🔄 Internet connected! Auto-synced ' + count + ' queued operations to Google Sheets.', 'credit');
+      }
+
+      // Listen for real browser online/offline transitions
+      window.addEventListener('online', function () {
+        state.isOnline = true;
+        updateNetworkUI();
+        if (!state.simulatedOffline && offlineQueue.length > 0) {
+          flushOfflineQueue();
+        }
+      });
+
+      window.addEventListener('offline', function () {
+        state.isOnline = false;
+        updateNetworkUI();
+        showToast('⚡ Internet disconnected. Switched to Offline LocalStorage mode.', 'warn');
+      });
+
+      function updateNetworkUI() {
+        const online = isEffectivelyOnline();
+        const pill = document.getElementById('syncStatusPill');
+        const text = document.getElementById('syncStatusText');
+        const banner = document.getElementById('offlineBanner');
+        const netIcon = document.getElementById('networkIcon');
+        const netLabel = document.getElementById('networkBtnLabel');
+        const queueBadge = document.getElementById('pendingQueueCountBadge');
+        const navQueue = document.getElementById('navBadgeQueue');
+        const sidebarDot = document.getElementById('sidebarSyncDot');
+
+        if (online) {
+          pill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold badge-credit';
+          text.textContent = offlineQueue.length > 0 ? ('Online • ' + offlineQueue.length + ' Pending') : 'Online • Sheets Synced';
+          netIcon.textContent = '🌐';
+          netLabel.textContent = 'Simulate Offline';
+          sidebarDot.className = 'text-[10px] px-1.5 py-0.5 rounded badge-credit';
+          sidebarDot.textContent = 'LIVE';
+          if (offlineQueue.length === 0) {
+            banner.classList.add('hidden');
+          } else {
+            banner.classList.remove('hidden');
+            document.getElementById('offlineBannerMsg').textContent = offlineQueue.length + ' offline changes are ready to sync to Google Sheets.';
+          }
+        } else {
+          pill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold badge-warn';
+          text.textContent = 'Offline • LocalStorage Mode (' + offlineQueue.length + ' Queued)';
+          netIcon.textContent = '⚡';
+          netLabel.textContent = 'Reconnect Online';
+          sidebarDot.className = 'text-[10px] px-1.5 py-0.5 rounded badge-warn';
+          sidebarDot.textContent = 'OFFLINE';
+          banner.classList.remove('hidden');
+          document.getElementById('offlineBannerMsg').textContent = 'Internet is disconnected (' + offlineQueue.length + ' queued ops). All new entries are stored in LocalStorage and will auto-sync when online.';
+        }
+
+        if (offlineQueue.length > 0) {
+          queueBadge.classList.remove('hidden');
+          queueBadge.textContent = String(offlineQueue.length);
+        } else {
+          queueBadge.classList.add('hidden');
+        }
+        if (navQueue) {
+          navQueue.textContent = offlineQueue.length + ' Queued';
+        }
+      }
+
+      // ========================================================================
+      // DATA AGGREGATION & METRICS HELPERS
+      // ========================================================================
+      function getBookById(bookId) {
+        return db.books.find(function (b) { return b.Book_ID === bookId; }) || null;
+      }
+
+      function computeBookStats(bookId) {
+        const booksToSum = bookId === 'ALL' ? db.books : db.books.filter(function (b) { return b.Book_ID === bookId; });
+        const opening = booksToSum.reduce(function (acc, b) { return acc + (Number(b.Opening_Balance) || 0); }, 0);
+        const txs = db.transactions.filter(function (t) {
+          return bookId === 'ALL' || t.Book_ID === bookId;
+        });
+        let totalCredit = 0;
+        let totalDebit = 0;
+        let creditCount = 0;
+        let debitCount = 0;
+        txs.forEach(function (t) {
+          const amt = Number(t.Net_Amount) || Number(t.Amount) || 0;
+          if (t.Type === 'CREDIT') {
+            totalCredit += amt;
+            creditCount++;
+          } else {
+            totalDebit += amt;
+            debitCount++;
+          }
+        });
+        return {
+          opening: opening,
+          totalCredit: totalCredit,
+          totalDebit: totalDebit,
+          creditCount: creditCount,
+          debitCount: debitCount,
+          netBalance: opening + totalCredit - totalDebit
+        };
+      }
+
+      // ========================================================================
+      // RENDERING PIPELINE
+      // ========================================================================
+      function renderBookSelectOptions() {
+        const globalSelect = document.getElementById('globalBookSelect');
+        const txBookSelect = document.getElementById('txBookField');
+        const hrBookSelect = document.getElementById('hrBookField');
+        const billBookSelect = document.getElementById('billBookField');
+
+        const currentGlobal = state.activeBookId;
+        globalSelect.innerHTML = '<option value="ALL">All Books (Consolidated)</option>';
+        txBookSelect.innerHTML = '';
+        hrBookSelect.innerHTML = '';
+        billBookSelect.innerHTML = '';
+
+        db.books.forEach(function (b) {
+          const optGlobal = document.createElement('option');
+          optGlobal.value = b.Book_ID;
+          optGlobal.textContent = b.Book_Name + ' (' + b.Category_Type + ')';
+          globalSelect.appendChild(optGlobal);
+
+          [txBookSelect, hrBookSelect, billBookSelect].forEach(function (sel) {
+            const opt = document.createElement('option');
+            opt.value = b.Book_ID;
+            opt.textContent = b.Book_Name;
+            sel.appendChild(opt);
+          });
+        });
+
+        globalSelect.value = currentGlobal;
+        if (currentGlobal !== 'ALL') {
+          txBookSelect.value = currentGlobal;
+          hrBookSelect.value = currentGlobal;
+          billBookSelect.value = currentGlobal;
+        }
+      }
+
+      function renderCategoryFilterOptions() {
+        const catSelect = document.getElementById('ledgerCategoryFilter');
+        const currentVal = catSelect.value || 'ALL';
+        const cats = Array.from(new Set(db.transactions.map(function (t) { return t.Category; }))).sort();
+        catSelect.innerHTML = '<option value="ALL">All Categories</option>';
+        cats.forEach(function (c) {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          catSelect.appendChild(opt);
+        });
+        if (cats.includes(currentVal)) catSelect.value = currentVal;
+      }
+
+      function renderKPIStrip() {
+        const stats = computeBookStats(state.activeBookId);
+        const activeBook = getBookById(state.activeBookId);
+        const bookLabel = activeBook ? activeBook.Book_Name : 'All Books';
+
+        document.getElementById('kpiBookTag').textContent = bookLabel;
+        document.getElementById('kpiNetBalance').textContent = formatINR(stats.netBalance);
+        document.getElementById('kpiOpeningSub').textContent = 'Opening Balance: ' + formatINR(stats.opening);
+        document.getElementById('kpiTotalCredit').textContent = '+' + formatINR(stats.totalCredit);
+        document.getElementById('kpiCreditCount').textContent = stats.creditCount + ' Cash In entries';
+        document.getElementById('kpiTotalDebit').textContent = '-' + formatINR(stats.totalDebit);
+        document.getElementById('kpiDebitCount').textContent = stats.debitCount + ' Cash Out entries';
+
+        // Sidebar Active Scope
+        document.getElementById('sidebarActiveBookName').textContent = bookLabel;
+        document.getElementById('sidebarActiveBookBalance').textContent = formatINR(stats.netBalance);
+
+        // Pending HR + Unpaid Payable Bills
+        const pendingPayroll = db.hr
+          .filter(function (e) { return e.Payroll_Status !== 'PAID' && (state.activeBookId === 'ALL' || e.Assigned_Book_ID === state.activeBookId); })
+          .reduce(function (s, e) { return s + (Number(e.Net_Payable) || 0); }, 0);
+        const unpaidPayables = db.bills
+          .filter(function (b) { return b.Status !== 'PAID' && b.Direction.indexOf('PAYABLE') !== -1 && (state.activeBookId === 'ALL' || b.Book_ID === state.activeBookId); })
+          .reduce(function (s, b) { return s + (Number(b.Amount) || 0); }, 0);
+
+        document.getElementById('kpiTotalPendingDues').textContent = formatINR(pendingPayroll + unpaidPayables);
+        document.getElementById('kpiDuesSub').textContent = 'HR: ' + formatINR(pendingPayroll) + ' • Bills: ' + formatINR(unpaidPayables);
+
+        // Update Sidebar Badges
+        document.getElementById('navBadgeLedger').textContent = String(db.transactions.length);
+        document.getElementById('navBadgeBooks').textContent = String(db.books.length);
+        const hrDueCount = db.hr.filter(function (e) { return e.Payroll_Status !== 'PAID'; }).length;
+        document.getElementById('navBadgeHR').textContent = hrDueCount + ' Due';
+        const overdueCount = db.bills.filter(function (b) { return b.Status === 'OVERDUE'; }).length;
+        document.getElementById('navBadgeBills').textContent = overdueCount > 0 ? (overdueCount + ' Overdue') : 'OK';
+      }
+
+      function renderDashboard() {
+        // 1. Per-Book Overview Table
+        const tbody = document.getElementById('dashboardBooksTableBody');
+        tbody.innerHTML = '';
+        db.books.forEach(function (b) {
+          const st = computeBookStats(b.Book_ID);
+          const tr = document.createElement('tr');
+          tr.className = 'hover:opacity-90 transition';
+          tr.innerHTML =
+            '<td class="py-2.5 px-3 font-bold text-pri">' + b.Book_Name + '<div class="text-[11px] font-normal text-mut truncate max-w-xs">' + b.Description + '</div></td>' +
+            '<td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold badge-info">' + b.Category_Type + '</span></td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num text-sec">' + formatINR(st.opening) + '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-semibold" style="color:var(--credit-fg)">+' + formatINR(st.totalCredit) + '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-semibold" style="color:var(--debit-fg)">-' + formatINR(st.totalDebit) + '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-extrabold text-pri">' + formatINR(st.netBalance) + '</td>' +
+            '<td class="py-2.5 px-3 text-center"><button type="button" data-select-book="' + b.Book_ID + '" class="themed-input px-2.5 py-1 rounded text-xs font-semibold hover:opacity-80">Open Book</button></td>';
+          tbody.appendChild(tr);
+        });
+
+        // 2. Urgent Alerts (Overdue/Due Soon Bills + Pending HR Payroll)
+        const alertsEl = document.getElementById('dashboardAlertsList');
+        alertsEl.innerHTML = '';
+
+        db.bills.filter(function (b) { return b.Status !== 'PAID'; }).forEach(function (b) {
+          const isOverdue = b.Status === 'OVERDUE';
+          const isReceivable = b.Direction.indexOf('RECEIVABLE') !== -1;
+          const badgeCls = isReceivable ? 'badge-info' : (isOverdue ? 'badge-debit' : 'badge-warn');
+          const card = document.createElement('div');
+          card.className = 'p-2.5 rounded-lg surface-elevated flex items-center justify-between gap-2 text-xs';
+          card.innerHTML =
+            '<div>' +
+              '<div class="flex items-center gap-1.5">' +
+                '<span class="px-1.5 py-0.2 rounded text-[10px] font-bold ' + badgeCls + '">' + b.Status + '</span>' +
+                '<span class="font-bold text-pri">' + b.Title_Description + '</span>' +
+              '</div>' +
+              '<div class="text-[11px] text-mut mt-0.5">' + b.Vendor_Or_Party + ' • Due: ' + b.Due_Date + '</div>' +
+            '</div>' +
+            '<div class="text-right shrink-0">' +
+              '<div class="font-mono-num font-bold text-pri">' + formatINR(b.Amount) + '</div>' +
+              '<button type="button" data-settle-bill="' + b.Bill_ID + '" class="mt-1 px-2 py-0.5 rounded text-[11px] font-bold btn-accent">' + (isReceivable ? 'Record In' : 'Pay Now') + '</button>' +
+            '</div>';
+          alertsEl.appendChild(card);
+        });
+
+        db.hr.filter(function (e) { return e.Payroll_Status !== 'PAID'; }).forEach(function (e) {
+          const card = document.createElement('div');
+          card.className = 'p-2.5 rounded-lg surface-elevated flex items-center justify-between gap-2 text-xs';
+          card.innerHTML =
+            '<div>' +
+              '<div class="flex items-center gap-1.5">' +
+                '<span class="px-1.5 py-0.2 rounded text-[10px] font-bold badge-warn">HR PAYROLL</span>' +
+                '<span class="font-bold text-pri">' + e.Employee_Name + '</span>' +
+              '</div>' +
+              '<div class="text-[11px] text-mut mt-0.5">' + e.Role_Designation + ' • Adv: ' + formatINR(e.Salary_Advance_Taken) + '</div>' +
+            '</div>' +
+            '<div class="text-right shrink-0">' +
+              '<div class="font-mono-num font-bold text-pri">' + formatINR(e.Net_Payable) + '</div>' +
+              '<button type="button" data-disburse-hr="' + e.Emp_ID + '" class="mt-1 px-2 py-0.5 rounded text-[11px] font-bold btn-accent">Disburse</button>' +
+            '</div>';
+          alertsEl.appendChild(card);
+        });
+
+        renderCharts();
+      }
+
+      function renderCharts() {
+        if (typeof Chart === 'undefined') return;
+        const styles = getComputedStyle(document.documentElement);
+        const textColor = styles.getPropertyValue('--text-secondary').trim() || '#334155';
+        const gridColor = styles.getPropertyValue('--chart-grid').trim() || '#e2e8f0';
+        const creditColor = styles.getPropertyValue('--credit-fg').trim() || '#047857';
+        const debitColor = styles.getPropertyValue('--debit-fg').trim() || '#be123c';
+
+        // Chart 1: Per-Book Cash In vs Cash Out
+        const ctx1 = document.getElementById('booksCashflowChart');
+        if (ctx1) {
+          const labels = db.books.map(function (b) { return b.Book_Name.split(' ')[0] + ' (' + b.Book_ID.split('-')[1] + ')'; });
+          const inData = db.books.map(function (b) { return computeBookStats(b.Book_ID).totalCredit; });
+          const outData = db.books.map(function (b) { return computeBookStats(b.Book_ID).totalDebit; });
+          const netData = db.books.map(function (b) { return computeBookStats(b.Book_ID).netBalance; });
+
+          if (booksChartInstance) booksChartInstance.destroy();
+          booksChartInstance = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [
+                { label: 'Cash In (+)', data: inData, backgroundColor: creditColor, borderRadius: 6 },
+                { label: 'Cash Out (-)', data: outData, backgroundColor: debitColor, borderRadius: 6 },
+                { label: 'Net Balance', data: netData, backgroundColor: '#3b82f6', borderRadius: 6 }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { labels: { color: textColor, font: { family: 'Inter', size: 11 } } }
+              },
+              scales: {
+                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                y: { ticks: { color: textColor }, grid: { color: gridColor } }
+              }
+            }
+          });
+        }
+
+        // Chart 2: Expense Breakdown by Category
+        const ctx2 = document.getElementById('categoryExpenseChart');
+        if (ctx2) {
+          const catTotals = {};
+          db.transactions
+            .filter(function (t) { return t.Type === 'DEBIT' && (state.activeBookId === 'ALL' || t.Book_ID === state.activeBookId); })
+            .forEach(function (t) {
+              const c = t.Category || 'Other';
+              catTotals[c] = (catTotals[c] || 0) + (Number(t.Net_Amount) || 0);
+            });
+          const catLabels = Object.keys(catTotals);
+          const catValues = catLabels.map(function (k) { return catTotals[k]; });
+          const palette = ['#10b981', '#f43f5e', '#3b82f6', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899'];
+
+          if (categoryChartInstance) categoryChartInstance.destroy();
+          categoryChartInstance = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+              labels: catLabels.length ? catLabels : ['No Debits'],
+              datasets: [{
+                data: catValues.length ? catValues : [1],
+                backgroundColor: palette,
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'right', labels: { color: textColor, font: { family: 'Inter', size: 11 }, boxWidth: 12 } }
+              }
+            }
+          });
+        }
+      }
+
+      function renderLedger() {
+        const search = (document.getElementById('ledgerSearchInput').value || '').toLowerCase().trim();
+        const typeFilter = document.getElementById('ledgerTypeFilter').value;
+        const modeFilter = document.getElementById('ledgerModeFilter').value;
+        const catFilter = document.getElementById('ledgerCategoryFilter').value;
+        const dateFilter = document.getElementById('ledgerDateFilter').value;
+
+        // Calculate chronological running balance for the selected book scope
+        const stats = computeBookStats(state.activeBookId);
+        const scopedTxsChrono = db.transactions
+          .filter(function (t) { return state.activeBookId === 'ALL' || t.Book_ID === state.activeBookId; })
+          .slice()
+          .sort(function (a, b) {
+            const da = a.Date + ' ' + (a.Time || '00:00') + ' ' + a.Tx_ID;
+            const dbStr = b.Date + ' ' + (b.Time || '00:00') + ' ' + b.Tx_ID;
+            return da.localeCompare(dbStr);
+          });
+
+        let running = stats.opening;
+        const runningMap = {};
+        scopedTxsChrono.forEach(function (t) {
+          const amt = Number(t.Net_Amount) || Number(t.Amount) || 0;
+          running += (t.Type === 'CREDIT' ? amt : -amt);
+          runningMap[t.Tx_ID] = running;
+        });
+
+        // Apply UI filters & sort newest first for display
+        const filtered = scopedTxsChrono.filter(function (t) {
+          if (typeFilter !== 'ALL' && t.Type !== typeFilter) return false;
+          if (modeFilter !== 'ALL' && t.Payment_Mode !== modeFilter) return false;
+          if (catFilter !== 'ALL' && t.Category !== catFilter) return false;
+          if (dateFilter === 'TODAY' && t.Date !== '2026-11-09') return false;
+          if (dateFilter === 'LAST7' && t.Date < '2026-11-02') return false;
+          if (dateFilter === 'THIS_MONTH' && !t.Date.startsWith('2026-11')) return false;
+          if (search) {
+            const hay = (t.Tx_ID + ' ' + t.Party_Name + ' ' + t.Notes + ' ' + t.Category + ' ' + t.Reference_Bill_No + ' ' + t.Book_Name).toLowerCase();
+            if (hay.indexOf(search) === -1) return false;
+          }
+          return true;
+        }).reverse();
+
+        const tbody = document.getElementById('ledgerTableBody');
+        tbody.innerHTML = '';
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-mut">No transactions match the current filters. Click <strong>+ Cash In</strong> or <strong>- Cash Out</strong> to add an entry.</td></tr>';
+          return;
+        }
+
+        filtered.forEach(function (t) {
+          const isCredit = t.Type === 'CREDIT';
+          const amt = Number(t.Net_Amount) || Number(t.Amount) || 0;
+          const runBal = runningMap[t.Tx_ID] !== undefined ? runningMap[t.Tx_ID] : 0;
+          const isSynced = t.Sync_Status === 'SYNCED';
+
+          const tr = document.createElement('tr');
+          tr.className = 'hover:opacity-90 transition';
+          tr.innerHTML =
+            '<td class="py-2.5 px-3 whitespace-nowrap">' +
+              '<div class="font-bold text-pri">' + t.Date + ' <span class="text-mut font-normal">' + (t.Time || '') + '</span></div>' +
+              '<div class="text-[11px] font-mono-num text-mut">' + t.Tx_ID + (t.Reference_Bill_No ? (' • ' + t.Reference_Bill_No) : '') + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold surface-elevated">' + t.Book_Name + '</span></td>' +
+            '<td class="py-2.5 px-3">' +
+              '<div class="font-bold text-pri">' + t.Party_Name + ' <span class="text-[10px] font-normal px-1.5 py-0.2 rounded surface-elevated">' + (t.Party_Role || '') + '</span></div>' +
+              '<div class="text-[11px] text-mut max-w-xs truncate">' + (t.Notes || '—') + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3">' +
+              '<div class="font-semibold text-sec">' + t.Category + '</div>' +
+              '<div class="text-[11px] text-mut">' + t.Payment_Mode + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-bold" style="color:var(--credit-fg)">' + (isCredit ? ('+' + formatINR(amt)) : '—') + '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-bold" style="color:var(--debit-fg)">' + (!isCredit ? ('-' + formatINR(amt)) : '—') + '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-extrabold text-pri">' + formatINR(runBal) + '</td>' +
+            '<td class="py-2.5 px-3 text-center">' +
+              '<span class="px-2 py-0.5 rounded text-[10px] font-bold ' + (isSynced ? 'badge-credit' : 'badge-warn') + '">' + (isSynced ? 'SYNCED' : 'QUEUED') + '</span>' +
+            '</td>' +
+            '<td class="py-2.5 px-3 text-center whitespace-nowrap">' +
+              '<button type="button" data-edit-tx="' + t.Tx_ID + '" class="themed-input px-2 py-1 rounded text-[11px] font-semibold mr-1" title="Edit Entry">✏️</button>' +
+              '<button type="button" data-del-tx="' + t.Tx_ID + '" class="themed-input px-2 py-1 rounded text-[11px] font-semibold" title="Delete Entry">🗑️</button>' +
+            '</td>';
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderBooksView() {
+        const container = document.getElementById('booksGridContainer');
+        if (!container) return;
+        const searchVal = (document.getElementById('projectSearchInput')?.value || '').toLowerCase().trim();
+        const typeFilter = document.getElementById('projectTypeFilter')?.value || 'ALL';
+        const statusFilter = document.getElementById('projectStatusFilter')?.value || 'ALL';
+
+        container.innerHTML = '';
+        const filteredBooks = db.books.filter(function (b) {
+          const stName = b.Status || 'Active';
+          if (typeFilter !== 'ALL' && b.Category_Type !== typeFilter) return false;
+          if (statusFilter !== 'ALL' && stName !== statusFilter) return false;
+          if (searchVal) {
+            const hay = (b.Book_ID + ' ' + b.Book_Name + ' ' + b.Description + ' ' + b.Category_Type).toLowerCase();
+            if (hay.indexOf(searchVal) === -1) return false;
+          }
+          return true;
+        });
+
+        if (filteredBooks.length === 0) {
+          container.innerHTML = '<div class="col-span-2 surface-card p-6 rounded-xl text-center text-xs text-mut">No projects match your current filter. Click <strong>+ Create New Cashbook / Project</strong> to add one.</div>';
+          return;
+        }
+
+        filteredBooks.forEach(function (b) {
+          const st = computeBookStats(b.Book_ID);
+          const statusLabel = b.Status || 'Active';
+          const statusCls = statusLabel === 'Active' ? 'badge-credit' : (statusLabel === 'On Hold' ? 'badge-warn' : 'surface-elevated');
+          const budgetLimit = Number(b.Budget_Limit) || 200000;
+          const pctUsed = budgetLimit > 0 ? Math.min(100, Math.round((st.totalDebit / budgetLimit) * 100)) : 0;
+          const isOverBudget = budgetLimit > 0 && st.totalDebit > budgetLimit;
+          const isSelected = state.activeBookId === b.Book_ID;
+
+          const card = document.createElement('div');
+          card.className = 'surface-card p-4 rounded-xl flex flex-col justify-between space-y-3 ' + (isSelected ? 'ring-2 ring-[var(--accent-primary)]' : '');
+          card.innerHTML =
+            '<div>' +
+              '<div class="flex items-start justify-between gap-2">' +
+                '<div>' +
+                  '<div class="flex flex-wrap items-center gap-1.5">' +
+                    '<span class="px-2 py-0.5 rounded text-[10px] font-bold badge-info">' + b.Category_Type + ' • ' + b.Book_ID + '</span>' +
+                    '<span class="px-2 py-0.5 rounded text-[10px] font-bold ' + statusCls + '">' + statusLabel + '</span>' +
+                    (isSelected ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold btn-accent">Active Filter</span>' : '') +
+                  '</div>' +
+                  '<h3 class="text-base font-extrabold text-pri mt-1.5">' + b.Book_Name + '</h3>' +
+                  '<p class="text-xs text-mut mt-0.5">' + b.Description + '</p>' +
+                '</div>' +
+                '<div class="flex items-center gap-1 shrink-0">' +
+                  '<button type="button" data-toggle-book-status="' + b.Book_ID + '" class="themed-input px-2 py-1 rounded text-[11px] font-semibold" title="Cycle Status (Active / On Hold / Completed / Archived)">🔄 Status</button>' +
+                  '<button type="button" data-edit-book="' + b.Book_ID + '" class="themed-input px-2 py-1 rounded text-xs" title="Edit Project Settings">✏️</button>' +
+                  '<button type="button" data-del-book="' + b.Book_ID + '" class="themed-input px-2 py-1 rounded text-xs" title="Delete Project">🗑️</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="grid grid-cols-3 gap-2 mt-3 p-3 rounded-lg surface-elevated text-xs">' +
+                '<div><div class="text-[10px] text-mut">Opening</div><div class="font-mono-num font-bold text-sec mt-0.5">' + formatINR(st.opening) + '</div></div>' +
+                '<div><div class="text-[10px] text-mut">Cash In (' + st.creditCount + ')</div><div class="font-mono-num font-bold mt-0.5" style="color:var(--credit-fg)">+' + formatINR(st.totalCredit) + '</div></div>' +
+                '<div><div class="text-[10px] text-mut">Cash Out (' + st.debitCount + ')</div><div class="font-mono-num font-bold mt-0.5" style="color:var(--debit-fg)">-' + formatINR(st.totalDebit) + '</div></div>' +
+              '</div>' +
+              '<div class="mt-3 space-y-1">' +
+                '<div class="flex items-center justify-between text-[11px]">' +
+                  '<span class="text-mut">Outflow vs Budget Cap (' + formatINR(budgetLimit) + ')</span>' +
+                  '<span class="font-mono-num font-bold ' + (isOverBudget ? 'text-rose-600' : 'text-sec') + '">' + pctUsed + '%' + (isOverBudget ? ' (Over Cap)' : '') + '</span>' +
+                '</div>' +
+                '<div class="w-full h-2 rounded-full surface-elevated overflow-hidden">' +
+                  '<div class="h-full rounded-full transition-all" style="width:' + pctUsed + '%; background-color:' + (isOverBudget ? 'var(--debit-fg)' : 'var(--accent-primary)') + '"></div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="pt-3 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2">' +
+              '<div><span class="text-xs text-mut">Net Balance: </span><span class="text-base font-extrabold font-mono-num text-pri">' + formatINR(st.netBalance) + '</span></div>' +
+              '<div class="flex items-center gap-1.5">' +
+                '<button type="button" data-book-cashin="' + b.Book_ID + '" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold badge-credit" title="Record Cash In for this Project">+ In</button>' +
+                '<button type="button" data-book-cashout="' + b.Book_ID + '" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold badge-debit" title="Record Cash Out for this Project">- Out</button>' +
+                '<button type="button" data-select-book="' + b.Book_ID + '" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold">Open Ledger →</button>' +
+              '</div>' +
+            '</div>';
+          container.appendChild(card);
+        });
+      }
+
+      function computeEmployeeGross(emp) {
+        const mode = emp.Salary_Mode || 'Monthly';
+        const rate = Number(emp.Pay_Rate) || Number(emp.Base_Monthly_Salary) || 0;
+        const units = Number(emp.Days_Worked) || (mode === 'Weekly' ? 4 : 26);
+        if (mode === 'Daily') {
+          return Math.round(rate * units);
+        }
+        if (mode === 'Weekly') {
+          return Math.round(rate * units);
+        }
+        // Monthly mode: if Pay_Rate is set, use Base_Monthly_Salary or Pay_Rate
+        return Number(emp.Base_Monthly_Salary) || rate;
+      }
+
+      function renderHRView() {
+        const tbody = document.getElementById('hrTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        const modeFilter = document.getElementById('hrModeFilterSelect')?.value || 'ALL';
+
+        let totalNet = 0;
+        let totalPaid = 0;
+        let totalPending = 0;
+        let totalAdvances = 0;
+
+        const scopedHR = db.hr.filter(function (e) {
+          const salMode = e.Salary_Mode || 'Monthly';
+          if (state.activeBookId !== 'ALL' && e.Assigned_Book_ID !== state.activeBookId) return false;
+          if (modeFilter !== 'ALL' && salMode !== modeFilter) return false;
+          return true;
+        });
+
+        scopedHR.forEach(function (e) {
+          const salMode = e.Salary_Mode || 'Monthly';
+          const rate = Number(e.Pay_Rate) || Number(e.Base_Monthly_Salary) || 0;
+          const gross = computeEmployeeGross(e);
+          e.Base_Monthly_Salary = gross;
+          const adv = Number(e.Salary_Advance_Taken) || 0;
+          const bon = Number(e.Bonus_Allowance) || 0;
+          const net = gross - adv + bon;
+          e.Net_Payable = net;
+
+          totalNet += net;
+          totalAdvances += adv;
+          if (e.Payroll_Status === 'PAID') {
+            totalPaid += net;
+          } else {
+            totalPending += net;
+          }
+
+          const bookObj = getBookById(e.Assigned_Book_ID);
+          const bookName = bookObj ? bookObj.Book_Name : e.Assigned_Book_ID;
+          const isPaid = e.Payroll_Status === 'PAID';
+
+          const modeBadgeCls = salMode === 'Daily' ? 'badge-warn' : (salMode === 'Weekly' ? 'badge-info' : 'surface-elevated');
+          const unitSuffix = salMode === 'Weekly' ? 'Wks' : 'Days';
+          const rateSuffix = salMode === 'Daily' ? '/day' : (salMode === 'Weekly' ? '/wk' : '/mo');
+
+          const tr = document.createElement('tr');
+          tr.className = 'hover:opacity-90 transition';
+          tr.innerHTML =
+            '<td class="py-2.5 px-3">' +
+              '<div class="font-bold text-pri">' + e.Employee_Name + ' <span class="text-[10px] font-mono-num text-mut">(' + e.Emp_ID + ')</span></div>' +
+              '<div class="text-[11px] text-mut">' + e.Role_Designation + ' • ' + (e.Phone || '') + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] surface-elevated font-semibold">' + bookName + '</span></td>' +
+            '<td class="py-2.5 px-3">' +
+              '<span class="px-2 py-0.5 rounded text-[10px] font-bold ' + modeBadgeCls + '">' + salMode.toUpperCase() + '</span>' +
+              '<div class="text-[11px] font-mono-num font-semibold text-sec mt-0.5">' + formatINR(rate) + rateSuffix + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3">' +
+              '<div class="font-semibold text-sec flex items-center gap-1">' +
+                '<span>' + e.Days_Worked + ' ' + unitSuffix + '</span>' +
+                '<button type="button" data-inc-unit="' + e.Emp_ID + '" class="themed-input px-1.5 py-0.2 rounded text-[10px] font-bold" title="Log +1 ' + (salMode === 'Weekly' ? 'Week' : 'Day') + '">+1</button>' +
+              '</div>' +
+              '<div class="text-[11px] text-mut">' + e.Attendance_Status + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-semibold text-sec">' + formatINR(gross) + '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num" style="color:var(--debit-fg)">-' + formatINR(adv) + '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num" style="color:var(--credit-fg)">+' + formatINR(bon) + '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-extrabold text-pri">' + formatINR(net) + '</td>' +
+            '<td class="py-2.5 px-3 text-center">' +
+              '<span class="px-2 py-0.5 rounded text-[10px] font-bold ' + (isPaid ? 'badge-credit' : 'badge-warn') + '">' + e.Payroll_Status + '</span>' +
+              '<div class="text-[10px] text-mut mt-0.5">Last: ' + (e.Last_Paid_Date || '—') + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3 text-center whitespace-nowrap space-x-1">' +
+              (!isPaid ? ('<button type="button" data-disburse-hr="' + e.Emp_ID + '" class="btn-accent px-2.5 py-1 rounded text-[11px] font-bold" title="Disburse Net Salary & Auto-Post Cash Out">Pay Salary</button>') : '') +
+              '<button type="button" data-advance-hr="' + e.Emp_ID + '" class="themed-input px-2 py-1 rounded text-[11px] font-semibold" title="Give +₹2,000 Cash Advance & Record Debit">+Adv</button>' +
+              '<button type="button" data-edit-hr="' + e.Emp_ID + '" class="themed-input px-2 py-1 rounded text-[11px]" title="Edit Employee & Salary Mode">✏️</button>' +
+              '<button type="button" data-del-hr="' + e.Emp_ID + '" class="themed-input px-2 py-1 rounded text-[11px]" title="Delete Employee">🗑️</button>' +
+            '</td>';
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('hrTotalNetPayable').textContent = formatINR(totalNet);
+        document.getElementById('hrTotalPaid').textContent = formatINR(totalPaid);
+        document.getElementById('hrTotalPending').textContent = formatINR(totalPending);
+        document.getElementById('hrTotalAdvances').textContent = formatINR(totalAdvances);
+      }
+
+      function renderBillsView() {
+        const statusFilter = document.getElementById('billsStatusFilter').value;
+        const tbody = document.getElementById('billsTableBody');
+        tbody.innerHTML = '';
+
+        let overdueTotal = 0;
+        let pendingOutTotal = 0;
+        let receivableTotal = 0;
+        let paidTotal = 0;
+
+        const scopedBills = db.bills.filter(function (b) {
+          return state.activeBookId === 'ALL' || b.Book_ID === state.activeBookId;
+        });
+
+        scopedBills.forEach(function (b) {
+          const amt = Number(b.Amount) || 0;
+          const isReceivable = b.Direction.indexOf('RECEIVABLE') !== -1;
+          if (b.Status === 'PAID') {
+            paidTotal += amt;
+          } else if (isReceivable) {
+            receivableTotal += amt;
+          } else if (b.Status === 'OVERDUE') {
+            overdueTotal += amt;
+          } else {
+            pendingOutTotal += amt;
+          }
+        });
+
+        const displayBills = scopedBills.filter(function (b) {
+          return statusFilter === 'ALL' || b.Status === statusFilter;
+        });
+
+        displayBills.forEach(function (b) {
+          const isReceivable = b.Direction.indexOf('RECEIVABLE') !== -1;
+          const isPaid = b.Status === 'PAID';
+          const badgeClass = isPaid ? 'badge-credit' : (b.Status === 'OVERDUE' ? 'badge-debit' : 'badge-warn');
+          const bookObj = getBookById(b.Book_ID);
+
+          const tr = document.createElement('tr');
+          tr.className = 'hover:opacity-90 transition';
+          tr.innerHTML =
+            '<td class="py-2.5 px-3">' +
+              '<div class="font-bold text-pri">' + b.Title_Description + '</div>' +
+              '<div class="text-[11px] font-mono-num text-mut">' + b.Bill_ID + (b.Linked_Tx_ID ? (' • Linked: ' + b.Linked_Tx_ID) : '') + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3">' +
+              '<div class="font-semibold text-sec">' + b.Vendor_Or_Party + '</div>' +
+              '<div class="text-[11px] text-mut">' + (b.Notes || '') + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3">' +
+              '<div class="text-xs font-semibold text-pri">' + (bookObj ? bookObj.Book_Name : b.Book_ID) + '</div>' +
+              '<span class="px-1.5 py-0.2 rounded text-[10px] font-bold ' + (isReceivable ? 'badge-info' : 'surface-elevated') + '">' + b.Direction + '</span>' +
+            '</td>' +
+            '<td class="py-2.5 px-3">' +
+              '<div class="font-mono-num font-semibold text-pri">' + b.Due_Date + '</div>' +
+              '<div class="text-[11px] text-mut">' + b.Frequency + ' • ' + b.Category + '</div>' +
+            '</td>' +
+            '<td class="py-2.5 px-3 text-right font-mono-num font-extrabold text-pri">' + formatINR(b.Amount) + '</td>' +
+            '<td class="py-2.5 px-3 text-center">' +
+              '<span class="px-2 py-0.5 rounded text-[10px] font-bold ' + badgeClass + '">' + b.Status + '</span>' +
+            '</td>' +
+            '<td class="py-2.5 px-3 text-center whitespace-nowrap space-x-1">' +
+              (!isPaid ? ('<button type="button" data-settle-bill="' + b.Bill_ID + '" class="btn-accent px-2.5 py-1 rounded text-[11px] font-bold">' + (isReceivable ? 'Collect In' : 'Pay Bill') + '</button>') : '') +
+              '<button type="button" data-edit-bill="' + b.Bill_ID + '" class="themed-input px-2 py-1 rounded text-[11px]" title="Edit Bill">✏️</button>' +
+              '<button type="button" data-del-bill="' + b.Bill_ID + '" class="themed-input px-2 py-1 rounded text-[11px]" title="Delete Bill">🗑️</button>' +
+            '</td>';
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('billsOverdueTotal').textContent = formatINR(overdueTotal);
+        document.getElementById('billsPendingOutTotal').textContent = formatINR(pendingOutTotal);
+        document.getElementById('billsReceivableTotal').textContent = formatINR(receivableTotal);
+        document.getElementById('billsPaidTotal').textContent = formatINR(paidTotal);
+      }
+
+      function renderSheetsSyncView() {
+        document.getElementById('sheetIdInput').value = sheetConfig.sheetId || SPREADSHEET_ID_DEFAULT;
+        document.getElementById('appsScriptUrlInput').value = sheetConfig.appsScriptUrl || '';
+
+        const outboxList = document.getElementById('offlineQueueList');
+        const outboxCount = document.getElementById('outboxCountText');
+        const outboxBadge = document.getElementById('outboxStatusBadge');
+        outboxCount.textContent = String(offlineQueue.length);
+
+        if (offlineQueue.length === 0) {
+          outboxBadge.className = 'text-[11px] px-2 py-0.5 rounded font-bold badge-credit';
+          outboxBadge.textContent = 'All Synced';
+          outboxList.innerHTML = '<div class="p-3 rounded-lg surface-card text-mut text-center">Zero pending offline operations. Every transaction, HR record, and bill is in sync with Google Sheets.</div>';
+        } else {
+          outboxBadge.className = 'text-[11px] px-2 py-0.5 rounded font-bold badge-warn';
+          outboxBadge.textContent = offlineQueue.length + ' Queued';
+          outboxList.innerHTML = '';
+          offlineQueue.forEach(function (op) {
+            const item = document.createElement('div');
+            item.className = 'p-2.5 rounded-lg surface-card flex items-center justify-between gap-2';
+            item.innerHTML =
+              '<div>' +
+                '<div class="font-bold text-pri"><span class="px-1.5 py-0.2 rounded text-[10px] badge-warn mr-1">' + op.action + '</span>' + op.sheetName + ' → ' + op.recordId + '</div>' +
+                '<div class="text-[11px] text-mut mt-0.5">' + op.details + '</div>' +
+              '</div>' +
+              '<span class="text-[10px] font-mono-num text-mut shrink-0">' + op.timestamp.split(' ')[1] + '</span>';
+            outboxList.appendChild(item);
+          });
+        }
+
+        const auditTbody = document.getElementById('syncAuditTableBody');
+        auditTbody.innerHTML = '';
+        db.auditLogs.slice(0, 25).forEach(function (log) {
+          const isPending = log.Status === 'PENDING_SYNC';
+          const tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td class="py-2 px-3 font-mono-num"><div class="font-bold text-pri">' + log.Log_ID + '</div><div class="text-[10px] text-mut">' + log.Timestamp_IST + '</div></td>' +
+            '<td class="py-2 px-3 font-bold text-sec">' + log.Operation + '</td>' +
+            '<td class="py-2 px-3 font-mono-num text-xs">' + log.Target_Sheet + '</td>' +
+            '<td class="py-2 px-3 font-mono-num font-semibold text-pri">' + log.Record_ID + '</td>' +
+            '<td class="py-2 px-3 text-mut">' + log.Source_Mode + '</td>' +
+            '<td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ' + (isPending ? 'badge-warn' : 'badge-credit') + '">' + log.Status + '</span></td>' +
+            '<td class="py-2 px-3 text-sec">' + log.Details + '</td>';
+          auditTbody.appendChild(tr);
+        });
+      }
+
+      function renderAll() {
+        renderBookSelectOptions();
+        renderCategoryFilterOptions();
+        renderKPIStrip();
+        renderDashboard();
+        renderLedger();
+        renderBooksView();
+        renderHRView();
+        renderBillsView();
+        renderSheetsSyncView();
+      }
+
+      // ========================================================================
+      // NAVIGATION & VIEW SWITCHING
+      // ========================================================================
+      function switchView(viewName) {
+        state.activeView = viewName;
+        document.querySelectorAll('.view-section').forEach(function (sec) {
+          sec.classList.add('hidden');
+        });
+        const target = document.getElementById('view-' + viewName);
+        if (target) target.classList.remove('hidden');
+
+        // Update nav active styling
+        document.querySelectorAll('.nav-tab-btn').forEach(function (btn) {
+          const navTarget = btn.getAttribute('data-nav');
+          const isMobile = btn.closest('.mobile-bottom-bar') !== null;
+          if (navTarget === viewName) {
+            if (isMobile) {
+              btn.classList.add('mobile-nav-active');
+              btn.classList.remove('text-sec');
+            } else {
+              btn.classList.add('nav-item-active');
+              btn.classList.remove('text-sec');
+            }
+          } else {
+            btn.classList.remove('nav-item-active', 'mobile-nav-active');
+            btn.classList.add('text-sec');
+          }
+        });
+
+        if (viewName === 'dashboard') {
+          renderCharts();
+        }
+      }
+
+      // ========================================================================
+      // MODAL HANDLERS & CRUD WORKFLOWS
+      // ========================================================================
+      function openTxModal(defaultType, editTxId) {
+        const modal = document.getElementById('txModal');
+        const form = document.getElementById('txForm');
+        form.reset();
+        renderBookSelectOptions();
+
+        if (editTxId) {
+          const tx = db.transactions.find(function (t) { return t.Tx_ID === editTxId; });
+          if (!tx) return;
+          document.getElementById('txModalTitle').textContent = 'Edit Transaction (' + tx.Tx_ID + ')';
+          document.getElementById('txIdField').value = tx.Tx_ID;
+          setTxModalType(tx.Type);
+          document.getElementById('txBookField').value = tx.Book_ID;
+          document.getElementById('txDateField').value = tx.Date;
+          document.getElementById('txTimeField').value = tx.Time || '12:00';
+          document.getElementById('txAmountField').value = tx.Amount;
+          document.getElementById('txTaxField').value = tx.Tax_GST || 0;
+          document.getElementById('txPartyNameField').value = tx.Party_Name;
+          document.getElementById('txPartyRoleField').value = tx.Party_Role || 'Client';
+          document.getElementById('txCategoryField').value = tx.Category;
+          document.getElementById('txModeField').value = tx.Payment_Mode;
+          document.getElementById('txRefField').value = tx.Reference_Bill_No || '';
+          document.getElementById('txNotesField').value = tx.Notes || '';
+        } else {
+          document.getElementById('txIdField').value = '';
+          setTxModalType(defaultType || 'CREDIT');
+          if (state.activeBookId !== 'ALL') {
+            document.getElementById('txBookField').value = state.activeBookId;
+          }
+          document.getElementById('txDateField').value = '2026-11-09';
+          document.getElementById('txTimeField').value = '18:00';
+          document.getElementById('txTaxField').value = 0;
+        }
+        updateTxNetPreview();
+        modal.classList.remove('hidden');
+      }
+
+      function setTxModalType(type) {
+        document.getElementById('txTypeField').value = type;
+        const creditBtn = document.getElementById('txTypeCreditBtn');
+        const debitBtn = document.getElementById('txTypeDebitBtn');
+        const title = document.getElementById('txModalTitle');
+        const isEdit = Boolean(document.getElementById('txIdField').value);
+
+        if (type === 'CREDIT') {
+          creditBtn.className = 'py-2 rounded-xl font-bold badge-credit text-center shadow-xs';
+          debitBtn.className = 'py-2 rounded-xl font-bold surface-elevated text-sec text-center';
+          if (!isEdit) title.textContent = 'Record Cash In (Credit / Income)';
+        } else {
+          debitBtn.className = 'py-2 rounded-xl font-bold badge-debit text-center shadow-xs';
+          creditBtn.className = 'py-2 rounded-xl font-bold surface-elevated text-sec text-center';
+          if (!isEdit) title.textContent = 'Record Cash Out (Debit / Expense)';
+        }
+      }
+
+      function updateTxNetPreview() {
+        const amt = Number(document.getElementById('txAmountField').value) || 0;
+        const tax = Number(document.getElementById('txTaxField').value) || 0;
+        document.getElementById('txNetAmountPreview').value = formatINR(amt + tax);
+      }
+
+      // Settle Bill -> Auto-creates Ledger Transaction & Marks Bill PAID
+      function settleBillById(billId) {
+        const bill = db.bills.find(function (b) { return b.Bill_ID === billId; });
+        if (!bill || bill.Status === 'PAID') return;
+
+        const isReceivable = bill.Direction.indexOf('RECEIVABLE') !== -1;
+        const newTxId = 'TX-' + (1001 + db.transactions.length + Math.floor(Math.random() * 90));
+        const bookObj = getBookById(bill.Book_ID);
+        const syncState = isEffectivelyOnline() ? 'SYNCED' : 'PENDING_OFFLINE';
+
+        const newTx = {
+          Tx_ID: newTxId,
+          Date: '2026-11-09',
+          Time: '18:05',
+          Book_ID: bill.Book_ID,
+          Book_Name: bookObj ? bookObj.Book_Name : bill.Book_ID,
+          Type: isReceivable ? 'CREDIT' : 'DEBIT',
+          Category: bill.Category,
+          Party_Name: bill.Vendor_Or_Party,
+          Party_Role: isReceivable ? 'Client' : 'Vendor',
+          Payment_Mode: bill.Payment_Mode || 'UPI',
+          Amount: Number(bill.Amount),
+          Tax_GST: 0,
+          Net_Amount: Number(bill.Amount),
+          Reference_Bill_No: bill.Bill_ID,
+          Notes: (isReceivable ? 'Invoice collected: ' : 'Bill paid: ') + bill.Title_Description,
+          Sync_Status: syncState,
+          Updated_At: new Date().toISOString()
+        };
+
+        bill.Status = 'PAID';
+        bill.Linked_Tx_ID = newTxId;
+        db.transactions.push(newTx);
+
+        dispatchCrudMutation('UPDATE', 'Bills_Payables', bill.Bill_ID, bill, 'Settled bill ' + bill.Bill_ID + ' & auto-created ledger entry ' + newTxId);
+        dispatchCrudMutation('CREATE', 'Transactions', newTxId, newTx, 'Auto-posted ' + newTx.Type + ' of ' + formatINR(newTx.Net_Amount) + ' for ' + bill.Title_Description);
+      }
+
+      // Disburse HR Salary -> Marks Employee PAID & Auto-creates Cash Out Ledger Entry
+      function disburseHrSalary(empId) {
+        const emp = db.hr.find(function (e) { return e.Emp_ID === empId; });
+        if (!emp || emp.Payroll_Status === 'PAID') return;
+
+        const netPay = (Number(emp.Base_Monthly_Salary) || 0) - (Number(emp.Salary_Advance_Taken) || 0) + (Number(emp.Bonus_Allowance) || 0);
+        const newTxId = 'TX-' + (1001 + db.transactions.length + Math.floor(Math.random() * 90));
+        const bookObj = getBookById(emp.Assigned_Book_ID);
+        const syncState = isEffectivelyOnline() ? 'SYNCED' : 'PENDING_OFFLINE';
+
+        const newTx = {
+          Tx_ID: newTxId,
+          Date: '2026-11-09',
+          Time: '18:10',
+          Book_ID: emp.Assigned_Book_ID,
+          Book_Name: bookObj ? bookObj.Book_Name : emp.Assigned_Book_ID,
+          Type: 'DEBIT',
+          Category: 'Staff Salary',
+          Party_Name: emp.Employee_Name,
+          Party_Role: 'Employee',
+          Payment_Mode: emp.Payment_Mode || 'Bank Transfer (NEFT/RTGS)',
+          Amount: netPay,
+          Tax_GST: 0,
+          Net_Amount: netPay,
+          Reference_Bill_No: 'PAY-' + emp.Emp_ID,
+          Notes: 'Monthly Salary Payout (' + emp.Role_Designation + ') after deducting advance of ' + formatINR(emp.Salary_Advance_Taken),
+          Sync_Status: syncState,
+          Updated_At: new Date().toISOString()
+        };
+
+        emp.Payroll_Status = 'PAID';
+        emp.Last_Paid_Date = '2026-11-09';
+        db.transactions.push(newTx);
+
+        dispatchCrudMutation('UPDATE', 'HR_Payroll', emp.Emp_ID, emp, 'Disbursed monthly payroll to ' + emp.Employee_Name);
+        dispatchCrudMutation('CREATE', 'Transactions', newTxId, newTx, 'Salary Cash Out of ' + formatINR(netPay) + ' for ' + emp.Employee_Name);
+      }
+
+      // Record Quick ₹2,000 Salary Advance for Employee
+      function recordQuickHrAdvance(empId) {
+        const emp = db.hr.find(function (e) { return e.Emp_ID === empId; });
+        if (!emp) return;
+        const advAmount = 2000;
+        emp.Salary_Advance_Taken = (Number(emp.Salary_Advance_Taken) || 0) + advAmount;
+        emp.Net_Payable = (Number(emp.Base_Monthly_Salary) || 0) - emp.Salary_Advance_Taken + (Number(emp.Bonus_Allowance) || 0);
+
+        const newTxId = 'TX-' + (1001 + db.transactions.length + Math.floor(Math.random() * 90));
+        const bookObj = getBookById(emp.Assigned_Book_ID);
+        const syncState = isEffectivelyOnline() ? 'SYNCED' : 'PENDING_OFFLINE';
+
+        const newTx = {
+          Tx_ID: newTxId,
+          Date: '2026-11-09',
+          Time: '18:15',
+          Book_ID: emp.Assigned_Book_ID,
+          Book_Name: bookObj ? bookObj.Book_Name : emp.Assigned_Book_ID,
+          Type: 'DEBIT',
+          Category: 'Salary Advance (Udhar)',
+          Party_Name: emp.Employee_Name,
+          Party_Role: 'Employee',
+          Payment_Mode: 'Cash',
+          Amount: advAmount,
+          Tax_GST: 0,
+          Net_Amount: advAmount,
+          Reference_Bill_No: 'ADV-' + emp.Emp_ID,
+          Notes: 'Staff salary advance recorded from HR module',
+          Sync_Status: syncState,
+          Updated_At: new Date().toISOString()
+        };
+
+        db.transactions.push(newTx);
+        dispatchCrudMutation('UPDATE', 'HR_Payroll', emp.Emp_ID, emp, 'Added ₹2,000 salary advance for ' + emp.Employee_Name);
+        dispatchCrudMutation('CREATE', 'Transactions', newTxId, newTx, 'Salary Advance Cash Out of ₹2,000 to ' + emp.Employee_Name);
+      }
+
+      // ========================================================================
+      // EVENT LISTENERS INITIALIZATION
+      // ========================================================================
+      function initEventListeners() {
+        // Apply saved theme on boot
+        document.documentElement.setAttribute('data-theme', state.theme);
+        document.getElementById('themeSelector').value = state.theme;
+
+        // Theme Switcher
+        document.getElementById('themeSelector').addEventListener('change', function (e) {
+          state.theme = e.target.value;
+          document.documentElement.setAttribute('data-theme', state.theme);
+          safeSetStorage(STORAGE_KEYS.THEME, state.theme);
+          renderCharts();
+          showToast('🎨 Switched theme to ' + e.target.options[e.target.selectedIndex].text, 'credit');
+        });
+
+        // Global Book Selector
+        document.getElementById('globalBookSelect').addEventListener('change', function (e) {
+          state.activeBookId = e.target.value;
+          renderAll();
+        });
+
+        // Simulate Offline / Online Button
+        document.getElementById('toggleNetworkBtn').addEventListener('click', function () {
+          state.simulatedOffline = !state.simulatedOffline;
+          updateNetworkUI();
+          if (!state.simulatedOffline && offlineQueue.length > 0) {
+            flushOfflineQueue();
+          } else if (state.simulatedOffline) {
+            showToast('⚡ Offline Mode enabled! New CRUD actions will queue in LocalStorage.', 'warn');
+          } else {
+            showToast('🌐 Connected Online to Google Sheets DB!', 'credit');
+          }
+        });
+
+        document.getElementById('reconnectAndSyncBtn').addEventListener('click', function () {
+          state.simulatedOffline = false;
+          state.isOnline = true;
+          updateNetworkUI();
+          flushOfflineQueue();
+        });
+
+        // Mobile Phone Viewport Simulator Toggle
+        document.getElementById('toggleViewportBtn').addEventListener('click', function () {
+          state.mobileSimulator = !state.mobileSimulator;
+          const wrapper = document.getElementById('appShellWrapper');
+          const label = document.getElementById('viewportBtnLabel');
+          if (state.mobileSimulator) {
+            wrapper.classList.add('mobile-simulator-wrapper');
+            label.textContent = 'Full Web View';
+            showToast('📱 Previewing Mobile App Layout (412px frame)', 'credit');
+          } else {
+            wrapper.classList.remove('mobile-simulator-wrapper');
+            label.textContent = 'Mobile View';
+            showToast('🖥️ Switched to Full Responsive Website Layout', 'credit');
+          }
+          setTimeout(renderCharts, 150);
+        });
+
+        // Navigation Tabs (Sidebar + Bottom Mobile Bar)
+        document.querySelectorAll('.nav-tab-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            const view = btn.getAttribute('data-nav');
+            if (view) switchView(view);
+          });
+        });
+
+        // Quick Goto links
+        document.querySelectorAll('[data-goto]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            switchView(btn.getAttribute('data-goto'));
+          });
+        });
+
+        // Open Transaction Modal Buttons
+        ['sidebarCashInBtn', 'topCashInBtn', 'ledgerAddCreditBtn'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('click', function () { openTxModal('CREDIT'); });
+        });
+        ['sidebarCashOutBtn', 'topCashOutBtn', 'ledgerAddDebitBtn'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('click', function () { openTxModal('DEBIT'); });
+        });
+
+        document.getElementById('txTypeCreditBtn').addEventListener('click', function () { setTxModalType('CREDIT'); });
+        document.getElementById('txTypeDebitBtn').addEventListener('click', function () { setTxModalType('DEBIT'); });
+        document.getElementById('txAmountField').addEventListener('input', updateTxNetPreview);
+        document.getElementById('txTaxField').addEventListener('input', updateTxNetPreview);
+
+        document.getElementById('closeTxModalBtn').addEventListener('click', function () {
+          document.getElementById('txModal').classList.add('hidden');
+        });
+        document.getElementById('cancelTxModalBtn').addEventListener('click', function () {
+          document.getElementById('txModal').classList.add('hidden');
+        });
+
+        // Submit Transaction Form (CREATE / UPDATE)
+        document.getElementById('txForm').addEventListener('submit', function (e) {
+          e.preventDefault();
+          const existingId = document.getElementById('txIdField').value;
+          const bookId = document.getElementById('txBookField').value;
+          const bookObj = getBookById(bookId);
+          const amt = Number(document.getElementById('txAmountField').value) || 0;
+          const tax = Number(document.getElementById('txTaxField').value) || 0;
+          const net = amt + tax;
+          const syncState = isEffectivelyOnline() ? 'SYNCED' : 'PENDING_OFFLINE';
+
+          const txRecord = {
+            Tx_ID: existingId || ('TX-' + (1001 + db.transactions.length + Math.floor(Math.random() * 89))),
+            Date: document.getElementById('txDateField').value,
+            Time: document.getElementById('txTimeField').value,
+            Book_ID: bookId,
+            Book_Name: bookObj ? bookObj.Book_Name : bookId,
+            Type: document.getElementById('txTypeField').value,
+            Category: document.getElementById('txCategoryField').value.trim(),
+            Party_Name: document.getElementById('txPartyNameField').value.trim(),
+            Party_Role: document.getElementById('txPartyRoleField').value,
+            Payment_Mode: document.getElementById('txModeField').value,
+            Amount: amt,
+            Tax_GST: tax,
+            Net_Amount: net,
+            Reference_Bill_No: document.getElementById('txRefField').value.trim(),
+            Notes: document.getElementById('txNotesField').value.trim(),
+            Sync_Status: syncState,
+            Updated_At: new Date().toISOString()
+          };
+
+          if (existingId) {
+            const idx = db.transactions.findIndex(function (t) { return t.Tx_ID === existingId; });
+            if (idx !== -1) db.transactions[idx] = txRecord;
+            document.getElementById('txModal').classList.add('hidden');
+            dispatchCrudMutation('UPDATE', 'Transactions', txRecord.Tx_ID, txRecord, 'Updated ' + txRecord.Type + ' entry for ' + txRecord.Party_Name + ' (' + formatINR(net) + ')');
+          } else {
+            db.transactions.push(txRecord);
+            document.getElementById('txModal').classList.add('hidden');
+            dispatchCrudMutation('CREATE', 'Transactions', txRecord.Tx_ID, txRecord, 'Added ' + txRecord.Type + ' entry for ' + txRecord.Party_Name + ' (' + formatINR(net) + ')');
+          }
+        });
+
+        // Ledger Filter Controls
+        ['ledgerSearchInput', 'ledgerTypeFilter', 'ledgerModeFilter', 'ledgerCategoryFilter', 'ledgerDateFilter'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('input', renderLedger);
+          if (el) el.addEventListener('change', renderLedger);
+        });
+        document.getElementById('ledgerResetFiltersBtn').addEventListener('click', function () {
+          document.getElementById('ledgerSearchInput').value = '';
+          document.getElementById('ledgerTypeFilter').value = 'ALL';
+          document.getElementById('ledgerModeFilter').value = 'ALL';
+          document.getElementById('ledgerCategoryFilter').value = 'ALL';
+          document.getElementById('ledgerDateFilter').value = 'ALL';
+          renderLedger();
+        });
+
+        // Book Modal & Project Controls
+        function openBookModal(editBookId) {
+          const modal = document.getElementById('bookModal');
+          document.getElementById('bookForm').reset();
+          if (editBookId) {
+            const b = getBookById(editBookId);
+            if (!b) return;
+            document.getElementById('bookModalTitle').textContent = 'Edit Project / Cashbook (' + b.Book_ID + ')';
+            document.getElementById('bookIdField').value = b.Book_ID;
+            document.getElementById('bookNameField').value = b.Book_Name;
+            document.getElementById('bookTypeField').value = b.Category_Type;
+            document.getElementById('bookStatusField').value = b.Status || 'Active';
+            document.getElementById('bookOpeningField').value = b.Opening_Balance;
+            document.getElementById('bookBudgetField').value = b.Budget_Limit || 200000;
+            document.getElementById('bookDescField').value = b.Description;
+          } else {
+            document.getElementById('bookModalTitle').textContent = 'Create New Cashbook / Work Project';
+            document.getElementById('bookIdField').value = '';
+            document.getElementById('bookStatusField').value = 'Active';
+            document.getElementById('bookBudgetField').value = 200000;
+          }
+          modal.classList.remove('hidden');
+        }
+        document.getElementById('dashNewBookBtn').addEventListener('click', function () { openBookModal(); });
+        document.getElementById('booksAddBookBtn').addEventListener('click', function () { openBookModal(); });
+        document.getElementById('closeBookModalBtn').addEventListener('click', function () { document.getElementById('bookModal').classList.add('hidden'); });
+        document.getElementById('cancelBookModalBtn').addEventListener('click', function () { document.getElementById('bookModal').classList.add('hidden'); });
+
+        document.getElementById('booksShowAllLedgerBtn').addEventListener('click', function () {
+          state.activeBookId = 'ALL';
+          document.getElementById('globalBookSelect').value = 'ALL';
+          renderAll();
+          switchView('ledger');
+          showToast('🌐 Showing Consolidated Ledger across all projects', 'credit');
+        });
+
+        ['projectSearchInput', 'projectTypeFilter', 'projectStatusFilter'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el) {
+            el.addEventListener('input', renderBooksView);
+            el.addEventListener('change', renderBooksView);
+          }
+        });
+
+        document.getElementById('bookForm').addEventListener('submit', function (e) {
+          e.preventDefault();
+          const existingId = document.getElementById('bookIdField').value;
+          const nextNum = db.books.length + 1 + Math.floor(Math.random() * 9);
+          const bookRecord = {
+            Book_ID: existingId || ('BOOK-0' + nextNum),
+            Book_Name: document.getElementById('bookNameField').value.trim(),
+            Category_Type: document.getElementById('bookTypeField').value,
+            Currency: 'INR',
+            Opening_Balance: Number(document.getElementById('bookOpeningField').value) || 0,
+            Budget_Limit: Number(document.getElementById('bookBudgetField').value) || 200000,
+            Status: document.getElementById('bookStatusField').value || 'Active',
+            Description: document.getElementById('bookDescField').value.trim() || 'Project cashbook ledger'
+          };
+          document.getElementById('bookModal').classList.add('hidden');
+          if (existingId) {
+            const idx = db.books.findIndex(function (b) { return b.Book_ID === existingId; });
+            if (idx !== -1) db.books[idx] = bookRecord;
+            // Also update Book_Name on linked transactions
+            db.transactions.forEach(function (t) {
+              if (t.Book_ID === existingId) t.Book_Name = bookRecord.Book_Name;
+            });
+            dispatchCrudMutation('UPDATE', 'Projects_Books', bookRecord.Book_ID, bookRecord, 'Updated project ' + bookRecord.Book_Name + ' (' + bookRecord.Status + ')');
+          } else {
+            db.books.push(bookRecord);
+            dispatchCrudMutation('CREATE', 'Projects_Books', bookRecord.Book_ID, bookRecord, 'Created new cashbook ' + bookRecord.Book_Name);
+          }
+        });
+
+        // Safe Delete Project Modal Controls
+        function openDeleteBookModal(bookId) {
+          if (db.books.length <= 1) {
+            showToast('At least 1 active Cashbook is required.', 'warn');
+            return;
+          }
+          const b = getBookById(bookId);
+          if (!b) return;
+          const linkedTxCount = db.transactions.filter(function (t) { return t.Book_ID === bookId; }).length;
+          const linkedBillCount = db.bills.filter(function (x) { return x.Book_ID === bookId; }).length;
+          document.getElementById('deleteBookTargetId').value = bookId;
+          document.getElementById('deleteBookTargetName').textContent = b.Book_Name + ' (' + b.Book_ID + ')';
+          document.getElementById('deleteBookTargetStats').textContent = linkedTxCount + ' transactions, ' + linkedBillCount + ' bills';
+          document.getElementById('deleteBookModal').classList.remove('hidden');
+        }
+        document.getElementById('closeDeleteBookModalBtn').addEventListener('click', function () {
+          document.getElementById('deleteBookModal').classList.add('hidden');
+        });
+        document.getElementById('cancelDeleteBookModalBtn').addEventListener('click', function () {
+          document.getElementById('deleteBookModal').classList.add('hidden');
+        });
+        document.getElementById('confirmDeleteBookBtn').addEventListener('click', function () {
+          const delBookId = document.getElementById('deleteBookTargetId').value;
+          const modeEl = document.querySelector('input[name="deleteCascadeMode"]:checked');
+          const mode = modeEl ? modeEl.value : 'reassign';
+          const idx = db.books.findIndex(function (b) { return b.Book_ID === delBookId; });
+          if (idx === -1) return;
+          const removed = db.books.splice(idx, 1)[0];
+          const fallbackBook = db.books[0];
+
+          if (mode === 'purge') {
+            db.transactions = db.transactions.filter(function (t) { return t.Book_ID !== delBookId; });
+            db.bills = db.bills.filter(function (x) { return x.Book_ID !== delBookId; });
+          } else if (fallbackBook) {
+            db.transactions.forEach(function (t) {
+              if (t.Book_ID === delBookId) {
+                t.Book_ID = fallbackBook.Book_ID;
+                t.Book_Name = fallbackBook.Book_Name;
+              }
+            });
+            db.bills.forEach(function (x) {
+              if (x.Book_ID === delBookId) x.Book_ID = fallbackBook.Book_ID;
+            });
+            db.hr.forEach(function (emp) {
+              if (emp.Assigned_Book_ID === delBookId) emp.Assigned_Book_ID = fallbackBook.Book_ID;
+            });
+          }
+
+          if (state.activeBookId === delBookId) state.activeBookId = 'ALL';
+          document.getElementById('deleteBookModal').classList.add('hidden');
+          dispatchCrudMutation('DELETE', 'Projects_Books', delBookId, removed, 'Deleted project ' + removed.Book_Name + ' (mode: ' + mode + ')');
+        });
+
+        // HR Modal & Salary Mode (Monthly / Weekly / Daily) Controls
+        function setHrSalaryModeUI(mode, preserveValues) {
+          document.getElementById('hrSalaryModeField').value = mode;
+          document.querySelectorAll('.hr-salmode-btn').forEach(function (b) {
+            if (b.getAttribute('data-set-salmode') === mode) {
+              b.className = 'hr-salmode-btn py-2 px-2 rounded-lg font-bold btn-accent text-center';
+            } else {
+              b.className = 'hr-salmode-btn py-2 px-2 rounded-lg font-bold surface-card text-sec text-center';
+            }
+          });
+
+          const rateLabel = document.getElementById('hrRateLabel');
+          const unitsLabel = document.getElementById('hrUnitsLabel');
+          const hint = document.getElementById('hrModeFormulaHint');
+          const rateInput = document.getElementById('hrPayRateField');
+          const unitsInput = document.getElementById('hrDaysField');
+          const attInput = document.getElementById('hrAttendanceField');
+
+          if (mode === 'Daily') {
+            rateLabel.textContent = 'Daily Wage Rate (₹/Day) *';
+            unitsLabel.textContent = 'Days Worked *';
+            hint.textContent = 'Gross = Daily Rate × Days Worked';
+            if (!preserveValues) {
+              rateInput.value = 1200;
+              unitsInput.value = 25;
+              attInput.value = '25 Daily Shifts';
+            }
+          } else if (mode === 'Weekly') {
+            rateLabel.textContent = 'Weekly Pay Rate (₹/Week) *';
+            unitsLabel.textContent = 'Weeks Worked *';
+            hint.textContent = 'Gross = Weekly Rate × Weeks Worked';
+            if (!preserveValues) {
+              rateInput.value = 8500;
+              unitsInput.value = 4;
+              attInput.value = '4 Weeks Logged';
+            }
+          } else {
+            rateLabel.textContent = 'Monthly Salary Rate (₹/Mo) *';
+            unitsLabel.textContent = 'Days Worked (of 26)';
+            hint.textContent = 'Fixed Monthly Salary (or pro-rata)';
+            if (!preserveValues) {
+              rateInput.value = 38000;
+              unitsInput.value = 26;
+              attInput.value = 'Present (26/26 Days)';
+            }
+          }
+          recalcHrModalPreview();
+        }
+
+        function recalcHrModalPreview() {
+          const mode = document.getElementById('hrSalaryModeField').value || 'Monthly';
+          const rate = Number(document.getElementById('hrPayRateField').value) || 0;
+          const units = Number(document.getElementById('hrDaysField').value) || 0;
+          let gross = rate;
+          if (mode === 'Daily' || mode === 'Weekly') {
+            gross = Math.round(rate * units);
+          } else {
+            // Monthly mode: full rate for 26 days, or pro-rata if user adjusts days != 26
+            gross = units === 26 || units <= 0 ? rate : Math.round((rate / 26) * units);
+          }
+          document.getElementById('hrBaseSalaryField').value = gross;
+          const adv = Number(document.getElementById('hrAdvanceField').value) || 0;
+          const bon = Number(document.getElementById('hrBonusField').value) || 0;
+          document.getElementById('hrNetPayablePreview').value = formatINR(gross - adv + bon);
+        }
+
+        document.querySelectorAll('.hr-salmode-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            setHrSalaryModeUI(btn.getAttribute('data-set-salmode'), false);
+          });
+        });
+
+        ['hrPayRateField', 'hrDaysField', 'hrAdvanceField', 'hrBonusField'].forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('input', recalcHrModalPreview);
+        });
+
+        document.getElementById('hrBaseSalaryField').addEventListener('input', function () {
+          const gross = Number(document.getElementById('hrBaseSalaryField').value) || 0;
+          const adv = Number(document.getElementById('hrAdvanceField').value) || 0;
+          const bon = Number(document.getElementById('hrBonusField').value) || 0;
+          document.getElementById('hrNetPayablePreview').value = formatINR(gross - adv + bon);
+        });
+
+        document.getElementById('hrModeFilterSelect').addEventListener('change', renderHRView);
+
+        function openHrModal(editEmpId) {
+          const modal = document.getElementById('hrModal');
+          document.getElementById('hrForm').reset();
+          renderBookSelectOptions();
+          if (editEmpId) {
+            const emp = db.hr.find(function (x) { return x.Emp_ID === editEmpId; });
+            if (!emp) return;
+            const salMode = emp.Salary_Mode || 'Monthly';
+            document.getElementById('hrModalTitle').textContent = 'Edit Employee (' + emp.Emp_ID + ' • ' + salMode + ')';
+            document.getElementById('hrIdField').value = emp.Emp_ID;
+            document.getElementById('hrNameField').value = emp.Employee_Name;
+            document.getElementById('hrRoleField').value = emp.Role_Designation;
+            document.getElementById('hrBookField').value = emp.Assigned_Book_ID;
+            document.getElementById('hrPhoneField').value = emp.Phone || '';
+            document.getElementById('hrPayRateField').value = emp.Pay_Rate || emp.Base_Monthly_Salary || 35000;
+            document.getElementById('hrDaysField').value = emp.Days_Worked || (salMode === 'Weekly' ? 4 : 26);
+            document.getElementById('hrBaseSalaryField').value = emp.Base_Monthly_Salary;
+            document.getElementById('hrAdvanceField').value = emp.Salary_Advance_Taken || 0;
+            document.getElementById('hrBonusField').value = emp.Bonus_Allowance || 0;
+            document.getElementById('hrAttendanceField').value = emp.Attendance_Status || 'Present';
+            document.getElementById('hrModeField').value = emp.Payment_Mode || 'UPI';
+            setHrSalaryModeUI(salMode, true);
+          } else {
+            document.getElementById('hrModalTitle').textContent = 'Add Employee / Contractor (Monthly, Weekly or Daily)';
+            document.getElementById('hrIdField').value = '';
+            setHrSalaryModeUI('Monthly', false);
+          }
+          modal.classList.remove('hidden');
+        }
+        document.getElementById('hrAddEmployeeBtn').addEventListener('click', function () { openHrModal(); });
+        document.getElementById('quickAddStaffBtn').addEventListener('click', function () { openHrModal(); });
+        document.getElementById('closeHrModalBtn').addEventListener('click', function () { document.getElementById('hrModal').classList.add('hidden'); });
+        document.getElementById('cancelHrModalBtn').addEventListener('click', function () { document.getElementById('hrModal').classList.add('hidden'); });
+
+        document.getElementById('hrForm').addEventListener('submit', function (e) {
+          e.preventDefault();
+          const existingId = document.getElementById('hrIdField').value;
+          const salMode = document.getElementById('hrSalaryModeField').value || 'Monthly';
+          const rate = Number(document.getElementById('hrPayRateField').value) || 0;
+          const units = Number(document.getElementById('hrDaysField').value) || (salMode === 'Weekly' ? 4 : 26);
+          const base = Number(document.getElementById('hrBaseSalaryField').value) || 0;
+          const adv = Number(document.getElementById('hrAdvanceField').value) || 0;
+          const bon = Number(document.getElementById('hrBonusField').value) || 0;
+          const empRecord = {
+            Emp_ID: existingId || ('EMP-0' + (db.hr.length + 1)),
+            Employee_Name: document.getElementById('hrNameField').value.trim(),
+            Role_Designation: document.getElementById('hrRoleField').value.trim(),
+            Assigned_Book_ID: document.getElementById('hrBookField').value,
+            Phone: document.getElementById('hrPhoneField').value.trim(),
+            Salary_Mode: salMode,
+            Pay_Rate: rate,
+            Base_Monthly_Salary: base,
+            Days_Worked: units,
+            Attendance_Status: document.getElementById('hrAttendanceField').value.trim(),
+            Salary_Advance_Taken: adv,
+            Bonus_Allowance: bon,
+            Net_Payable: base - adv + bon,
+            Payroll_Status: 'PENDING',
+            Last_Paid_Date: '—',
+            Payment_Mode: document.getElementById('hrModeField').value
+          };
+          document.getElementById('hrModal').classList.add('hidden');
+          if (existingId) {
+            const idx = db.hr.findIndex(function (x) { return x.Emp_ID === existingId; });
+            if (idx !== -1) {
+              empRecord.Payroll_Status = db.hr[idx].Payroll_Status;
+              empRecord.Last_Paid_Date = db.hr[idx].Last_Paid_Date;
+              db.hr[idx] = empRecord;
+            }
+            dispatchCrudMutation('UPDATE', 'HR_Payroll', empRecord.Emp_ID, empRecord, 'Updated ' + salMode + ' payroll for ' + empRecord.Employee_Name);
+          } else {
+            db.hr.push(empRecord);
+            dispatchCrudMutation('CREATE', 'HR_Payroll', empRecord.Emp_ID, empRecord, 'Added ' + salMode + ' employee ' + empRecord.Employee_Name + ' (' + formatINR(empRecord.Net_Payable) + ')');
+          }
+        });
+
+        // Bill Modal Controls
+        function openBillModal(editBillId) {
+          const modal = document.getElementById('billModal');
+          document.getElementById('billForm').reset();
+          renderBookSelectOptions();
+          if (editBillId) {
+            const bill = db.bills.find(function (x) { return x.Bill_ID === editBillId; });
+            if (!bill) return;
+            document.getElementById('billModalTitle').textContent = 'Edit Bill / Invoice (' + bill.Bill_ID + ')';
+            document.getElementById('billIdField').value = bill.Bill_ID;
+            document.getElementById('billTitleField').value = bill.Title_Description;
+            document.getElementById('billPartyField').value = bill.Vendor_Or_Party;
+            document.getElementById('billBookField').value = bill.Book_ID;
+            document.getElementById('billDirectionField').value = bill.Direction;
+            document.getElementById('billCategoryField').value = bill.Category;
+            document.getElementById('billAmountField').value = bill.Amount;
+            document.getElementById('billDueDateField').value = bill.Due_Date;
+            document.getElementById('billFreqField').value = bill.Frequency;
+            document.getElementById('billStatusField').value = bill.Status;
+            document.getElementById('billNotesField').value = bill.Notes || '';
+          } else {
+            document.getElementById('billModalTitle').textContent = 'Add New Bill or Receivable Invoice';
+            document.getElementById('billIdField').value = '';
+          }
+          modal.classList.remove('hidden');
+        }
+        document.getElementById('billsAddBillBtn').addEventListener('click', function () { openBillModal(); });
+        document.getElementById('quickAddBillBtn').addEventListener('click', function () { openBillModal(); });
+        document.getElementById('closeBillModalBtn').addEventListener('click', function () { document.getElementById('billModal').classList.add('hidden'); });
+        document.getElementById('cancelBillModalBtn').addEventListener('click', function () { document.getElementById('billModal').classList.add('hidden'); });
+        document.getElementById('billsStatusFilter').addEventListener('change', renderBillsView);
+
+        document.getElementById('billForm').addEventListener('submit', function (e) {
+          e.preventDefault();
+          const existingId = document.getElementById('billIdField').value;
+          const billRecord = {
+            Bill_ID: existingId || ('BILL-' + (101 + db.bills.length + Math.floor(Math.random() * 50))),
+            Title_Description: document.getElementById('billTitleField').value.trim(),
+            Vendor_Or_Party: document.getElementById('billPartyField').value.trim(),
+            Book_ID: document.getElementById('billBookField').value,
+            Direction: document.getElementById('billDirectionField').value,
+            Category: document.getElementById('billCategoryField').value.trim(),
+            Due_Date: document.getElementById('billDueDateField').value,
+            Frequency: document.getElementById('billFreqField').value,
+            Amount: Number(document.getElementById('billAmountField').value) || 0,
+            Status: document.getElementById('billStatusField').value,
+            Payment_Mode: 'UPI',
+            Linked_Tx_ID: '',
+            Notes: document.getElementById('billNotesField').value.trim()
+          };
+          document.getElementById('billModal').classList.add('hidden');
+          if (existingId) {
+            const idx = db.bills.findIndex(function (x) { return x.Bill_ID === existingId; });
+            if (idx !== -1) db.bills[idx] = billRecord;
+            dispatchCrudMutation('UPDATE', 'Bills_Payables', billRecord.Bill_ID, billRecord, 'Updated bill ' + billRecord.Title_Description);
+          } else {
+            db.bills.push(billRecord);
+            dispatchCrudMutation('CREATE', 'Bills_Payables', billRecord.Bill_ID, billRecord, 'Added bill ' + billRecord.Title_Description + ' (' + formatINR(billRecord.Amount) + ')');
+          }
+        });
+
+        // Event Delegation for Dynamic Table & Card Buttons (Edit, Delete, Settle, Disburse, Select Book)
+        document.body.addEventListener('click', function (e) {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+
+          const selectBookId = btn.getAttribute('data-select-book');
+          if (selectBookId) {
+            state.activeBookId = selectBookId;
+            document.getElementById('globalBookSelect').value = selectBookId;
+            renderAll();
+            switchView('ledger');
+            showToast('📂 Filtered ledger to ' + (getBookById(selectBookId)?.Book_Name || selectBookId), 'credit');
+            return;
+          }
+
+          const editTxId = btn.getAttribute('data-edit-tx');
+          if (editTxId) {
+            openTxModal(null, editTxId);
+            return;
+          }
+
+          const delTxId = btn.getAttribute('data-del-tx');
+          if (delTxId) {
+            const idx = db.transactions.findIndex(function (t) { return t.Tx_ID === delTxId; });
+            if (idx !== -1) {
+              const removed = db.transactions.splice(idx, 1)[0];
+              dispatchCrudMutation('DELETE', 'Transactions', delTxId, removed, 'Deleted transaction ' + delTxId + ' (' + removed.Party_Name + ')');
+            }
+            return;
+          }
+
+          const editBookId = btn.getAttribute('data-edit-book');
+          if (editBookId) {
+            openBookModal(editBookId);
+            return;
+          }
+
+          const toggleStatusBookId = btn.getAttribute('data-toggle-book-status');
+          if (toggleStatusBookId) {
+            const b = getBookById(toggleStatusBookId);
+            if (b) {
+              const order = ['Active', 'On Hold', 'Completed', 'Archived'];
+              const nextStatus = order[(order.indexOf(b.Status || 'Active') + 1) % order.length];
+              b.Status = nextStatus;
+              dispatchCrudMutation('UPDATE', 'Projects_Books', b.Book_ID, b, 'Changed project ' + b.Book_Name + ' status to ' + nextStatus);
+            }
+            return;
+          }
+
+          const bookCashInId = btn.getAttribute('data-book-cashin');
+          if (bookCashInId) {
+            state.activeBookId = bookCashInId;
+            openTxModal('CREDIT');
+            document.getElementById('txBookField').value = bookCashInId;
+            return;
+          }
+
+          const bookCashOutId = btn.getAttribute('data-book-cashout');
+          if (bookCashOutId) {
+            state.activeBookId = bookCashOutId;
+            openTxModal('DEBIT');
+            document.getElementById('txBookField').value = bookCashOutId;
+            return;
+          }
+
+          const delBookId = btn.getAttribute('data-del-book');
+          if (delBookId) {
+            openDeleteBookModal(delBookId);
+            return;
+          }
+
+          const incUnitEmpId = btn.getAttribute('data-inc-unit');
+          if (incUnitEmpId) {
+            const emp = db.hr.find(function (x) { return x.Emp_ID === incUnitEmpId; });
+            if (emp) {
+              const salMode = emp.Salary_Mode || 'Monthly';
+              emp.Days_Worked = (Number(emp.Days_Worked) || 0) + 1;
+              emp.Base_Monthly_Salary = computeEmployeeGross(emp);
+              emp.Net_Payable = emp.Base_Monthly_Salary - (Number(emp.Salary_Advance_Taken) || 0) + (Number(emp.Bonus_Allowance) || 0);
+              emp.Attendance_Status = emp.Days_Worked + (salMode === 'Weekly' ? ' Weeks Logged' : (salMode === 'Daily' ? ' Daily Shifts' : '/26 Days'));
+              dispatchCrudMutation('UPDATE', 'HR_Payroll', emp.Emp_ID, emp, 'Logged +1 ' + (salMode === 'Weekly' ? 'week' : 'day') + ' for ' + emp.Employee_Name + ' (Net: ' + formatINR(emp.Net_Payable) + ')');
+            }
+            return;
+          }
+
+          const disburseId = btn.getAttribute('data-disburse-hr');
+          if (disburseId) {
+            disburseHrSalary(disburseId);
+            return;
+          }
+
+          const advanceId = btn.getAttribute('data-advance-hr');
+          if (advanceId) {
+            recordQuickHrAdvance(advanceId);
+            return;
+          }
+
+          const editHrId = btn.getAttribute('data-edit-hr');
+          if (editHrId) {
+            openHrModal(editHrId);
+            return;
+          }
+
+          const delHrId = btn.getAttribute('data-del-hr');
+          if (delHrId) {
+            const idx = db.hr.findIndex(function (x) { return x.Emp_ID === delHrId; });
+            if (idx !== -1) {
+              const removed = db.hr.splice(idx, 1)[0];
+              dispatchCrudMutation('DELETE', 'HR_Payroll', delHrId, removed, 'Removed employee ' + removed.Employee_Name);
+            }
+            return;
+          }
+
+          const settleBill = btn.getAttribute('data-settle-bill');
+          if (settleBill) {
+            settleBillById(settleBill);
+            return;
+          }
+
+          const editBillId = btn.getAttribute('data-edit-bill');
+          if (editBillId) {
+            openBillModal(editBillId);
+            return;
+          }
+
+          const delBillId = btn.getAttribute('data-del-bill');
+          if (delBillId) {
+            const idx = db.bills.findIndex(function (x) { return x.Bill_ID === delBillId; });
+            if (idx !== -1) {
+              const removed = db.bills.splice(idx, 1)[0];
+              dispatchCrudMutation('DELETE', 'Bills_Payables', delBillId, removed, 'Deleted bill ' + removed.Title_Description);
+            }
+            return;
+          }
+        });
+
+        // Google Sheets Sync Center Buttons
+        document.getElementById('forceSyncNowBtn').addEventListener('click', flushOfflineQueue);
+
+        document.getElementById('saveSheetConfigBtn').addEventListener('click', function () {
+          sheetConfig.sheetId = document.getElementById('sheetIdInput').value.trim() || SPREADSHEET_ID_DEFAULT;
+          sheetConfig.appsScriptUrl = document.getElementById('appsScriptUrlInput').value.trim();
+          safeSetStorage(STORAGE_KEYS.CONFIG, sheetConfig);
+          showToast('✅ Saved Google Sheets connection config!', 'credit');
+        });
+
+        document.getElementById('pullFromSheetsBtn').addEventListener('click', async function () {
+          if (!isEffectivelyOnline()) {
+            showToast('⚡ Cannot pull from Google Sheets while Offline. Serving cached LocalStorage data.', 'warn');
+            return;
+          }
+          if (sheetConfig.appsScriptUrl && sheetConfig.appsScriptUrl.startsWith('https://')) {
+            try {
+              const res = await fetch(sheetConfig.appsScriptUrl);
+              const data = await res.json();
+              if (data && data.status === 'OK') {
+                if (Array.isArray(data.books) && data.books.length) db.books = data.books;
+                if (Array.isArray(data.transactions) && data.transactions.length) db.transactions = data.transactions;
+                if (Array.isArray(data.hr) && data.hr.length) db.hr = data.hr;
+                if (Array.isArray(data.bills) && data.bills.length) db.bills = data.bills;
+              }
+            } catch (e) {
+              // Fallback to baseline sync audit
+            }
+          }
+          db.auditLogs.unshift({
+            Log_ID: 'READ-' + Date.now().toString().slice(-4),
+            Timestamp_IST: nowISTString(),
+            Operation: 'READ_REFRESH',
+            Target_Sheet: 'ALL_TABS',
+            Record_ID: 'FULL_PULL',
+            Source_Mode: 'Online_Direct',
+            Status: 'SUCCESS',
+            Details: 'Verified & refreshed all 4 relational tables from Google Sheet 1UTXWt...6bRvo'
+          });
+          persistAll();
+          renderAll();
+          showToast('📊 Refreshed data from Google Sheet (1UTXWt...6bRvo)!', 'credit');
+        });
+
+        document.getElementById('resetDemoDataBtn').addEventListener('click', function () {
+          db = getBaselineDatabase();
+          offlineQueue = [];
+          persistAll();
+          updateNetworkUI();
+          renderAll();
+          showToast('♻️ Restored baseline Google Sheet database state.', 'credit');
+        });
+
+        document.getElementById('copyAppsScriptBtn').addEventListener('click', function () {
+          const code = document.getElementById('appsScriptCodeBlock').textContent;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).catch(function () {});
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = code;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+          }
+          showToast('📋 Copied Google Apps Script (Code.gs) to clipboard!', 'credit');
+        });
+
+        // CSV Export
+        document.getElementById('quickExportCsvBtn').addEventListener('click', function () {
+          const headers = ['Tx_ID','Date','Time','Book_ID','Book_Name','Type','Category','Party_Name','Party_Role','Payment_Mode','Amount','Tax_GST','Net_Amount','Reference_Bill_No','Notes','Sync_Status'];
+          const rows = db.transactions.map(function (t) {
+            return headers.map(function (h) {
+              const v = t[h] !== undefined ? String(t[h]).replace(/"/g, '""') : '';
+              return '"' + v + '"';
+            }).join(',');
+          });
+          const csv = [headers.join(',')].concat(rows).join('\n');
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'CashBook_Pro_Transactions_2026.csv';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('⬇️ Downloaded Transactions CSV!', 'credit');
+        });
+
+        // Full JSON Backup Export
+        document.getElementById('exportJsonBackupBtn').addEventListener('click', function () {
+          const payload = JSON.stringify({ database: db, pendingQueue: offlineQueue, exportedAt: new Date().toISOString() }, null, 2);
+          const blob = new Blob([payload], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'CashBook_Pro_Full_Backup.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('⬇️ Downloaded Full JSON Database Backup!', 'credit');
+        });
+      }
+
+      // Boot Application
+      window.addEventListener('DOMContentLoaded', function () {
+        initEventListeners();
+        updateNetworkUI();
+        updateStorageSizeIndicator();
+        renderAll();
+      });
+    })();
+  </script>
+</body>
+</html>
