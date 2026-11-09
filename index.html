@@ -68,14 +68,36 @@
           </select>
         </div>
 
-        <!-- Direct Link to Google Sheet DB -->
-        <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/edit" target="_blank" rel="noopener noreferrer" class="btn-accent px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm" title="Open live Google Sheet Database in Google Drive">
-          <span>📊</span>
-          <span class="hidden sm:inline">Open Drive Sheet</span>
-        </a>
+        <!-- Dynamic Link to User's Google Sheet DB / Connect Modal -->
+        <button id="headerSheetBtn" type="button" class="btn-accent px-2.5 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm" title="Google Sheet Database status and connection">
+          <span id="headerSheetIcon">⚡</span>
+          <span id="headerSheetText" class="hidden sm:inline">Connect Google Sheet</span>
+        </button>
       </div>
     </div>
   </header>
+
+  <!-- FIRST-TIME / MULTI-USER CLOUD SYNC ONBOARDING BANNER -->
+  <div id="firstTimeUserBanner" class="hidden surface-elevated border-b px-3.5 py-2 text-xs">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-base">🚀</span>
+        <div>
+          <span class="font-bold text-pri">Multi-User Ready:</span>
+          <span class="text-sec"> Running privately on your device. Connect your own Google Drive spreadsheet for cloud backup and multi-device sync:</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/copy" target="_blank" rel="noopener noreferrer" class="btn-accent px-2.5 py-1 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+          <span>📑</span><span>1. Copy Template</span>
+        </a>
+        <button id="openConnectModalBtn" type="button" class="themed-input px-2.5 py-1 rounded-lg text-xs font-bold hover:opacity-80">
+          ⚙️ 2. Connect Sheet
+        </button>
+        <button id="dismissFirstTimeBannerBtn" type="button" class="text-mut hover:text-pri text-xs px-1.5 py-0.5 rounded" title="Dismiss">✕</button>
+      </div>
+    </div>
+  </div>
 
   <!-- OFFLINE QUEUE BANNER (Shown when Offline or when Pending Mutations exist) -->
   <div id="offlineBanner" class="hidden badge-warn border-b px-4 py-2 text-xs font-medium">
@@ -569,38 +591,83 @@
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div class="flex items-center gap-2">
-                  <h2 class="text-base font-bold text-pri">Google Sheets Database & Offline-First Sync Engine</h2>
-                  <span class="px-2 py-0.5 rounded text-xs font-bold badge-credit">CRUD + Auto-Queue</span>
+                  <h2 class="text-base font-bold text-pri">Google Sheets Database & Multi-User Sync Engine</h2>
+                  <span id="sheetConnectionBadge" class="px-2 py-0.5 rounded text-xs font-bold badge-credit">Local / Offline Ready</span>
                 </div>
                 <p class="text-xs text-mut mt-0.5">
-                  Connected Master Spreadsheet in Google Drive:
-                  <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/edit" target="_blank" rel="noopener noreferrer" class="font-mono-num underline font-semibold text-pri">1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo</a>
+                  Connected Google Sheet:
+                  <a id="currentSheetDisplayLink" href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/copy" target="_blank" rel="noopener noreferrer" class="font-mono-num underline font-semibold text-pri">Local Storage (Click to connect your own sheet)</a>
                 </p>
               </div>
               <div class="flex flex-wrap items-center gap-2">
-                <button id="forceSyncNowBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
-                  <span>🔄</span><span>Sync Pending Queue Now</span>
+                <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/copy" target="_blank" rel="noopener noreferrer" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm" title="Create a private copy of the database template in your Google Drive">
+                  <span>📑</span><span>1. Copy Template Sheet</span>
+                </a>
+                <button id="openConnectModalFromSheetsBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                  <span>⚙️</span><span>2. Connect Sheet Wizard</span>
+                </button>
+                <button id="forceSyncNowBtn" type="button" class="themed-input px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-80 flex items-center gap-1.5">
+                  <span>🔄</span><span>Sync Queue</span>
                 </button>
                 <button id="pullFromSheetsBtn" type="button" class="themed-input px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-80">
-                  ⬇️ Pull / Refresh from Sheet
+                  ⬇️ Pull from Sheet
                 </button>
                 <button id="resetDemoDataBtn" type="button" class="themed-input px-3 py-1.5 rounded-lg text-xs font-semibold hover:opacity-80">
-                  ♻️ Reset Baseline Sheet Data
+                  ♻️ Reset Local Data
                 </button>
+              </div>
+            </div>
+
+            <!-- How Any User Connects Their Own Sheet 3-Step Card -->
+            <div class="p-3.5 rounded-xl border border-[var(--border-subtle)] surface-elevated space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-pri flex items-center gap-1.5">
+                  <span class="text-sm">💡</span>
+                  <span>How to connect your private Google Drive spreadsheet (Free & 100% Private):</span>
+                </span>
+                <span class="text-[11px] text-mut hidden sm:inline">Takes ~45 seconds</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
+                <div class="p-2.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+                  <div class="font-bold text-pri mb-1 flex items-center gap-1.5">
+                    <span class="w-4 h-4 rounded-full btn-accent text-[10px] flex items-center justify-center font-bold">1</span>
+                    <span>Make a Personal Copy</span>
+                  </div>
+                  <p class="text-mut text-[11px] mb-2">Each user gets their own private spreadsheet in their own Google Drive.</p>
+                  <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/copy" target="_blank" rel="noopener noreferrer" class="text-pri font-bold underline hover:opacity-80 inline-flex items-center gap-1">
+                    📑 Make a Copy Prompt ↗
+                  </a>
+                </div>
+                <div class="p-2.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+                  <div class="font-bold text-pri mb-1 flex items-center gap-1.5">
+                    <span class="w-4 h-4 rounded-full btn-accent text-[10px] flex items-center justify-center font-bold">2</span>
+                    <span>Deploy Web App</span>
+                  </div>
+                  <p class="text-mut text-[11px]">In your copied sheet, open <strong>Extensions → Apps Script</strong> (sync code is already attached). Click <strong>Deploy → New deployment → Web app</strong>. Set <em>Execute as: Me</em> & <em>Access: Anyone</em>.</p>
+                </div>
+                <div class="p-2.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+                  <div class="font-bold text-pri mb-1 flex items-center gap-1.5">
+                    <span class="w-4 h-4 rounded-full btn-accent text-[10px] flex items-center justify-center font-bold">3</span>
+                    <span>Paste Endpoint & Sync</span>
+                  </div>
+                  <p class="text-mut text-[11px]">Paste your Web App URL into the fields below and click <strong>Save Endpoint</strong>. All changes from this browser now sync to your own sheet!</p>
+                </div>
               </div>
             </div>
 
             <!-- Configuration Inputs for Google Sheets Apps Script Webhook -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3.5 rounded-xl surface-elevated">
               <div>
-                <label for="sheetIdInput" class="block text-[11px] font-bold uppercase text-mut mb-1">Google Drive Spreadsheet ID</label>
-                <input id="sheetIdInput" type="text" value="1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo" class="themed-input w-full text-xs font-mono-num rounded-lg px-2.5 py-1.5" />
+                <label for="sheetIdInput" class="block text-[11px] font-bold uppercase text-mut mb-1">Your Google Spreadsheet ID or URL</label>
+                <input id="sheetIdInput" type="text" placeholder="Paste full sheet URL or ID" class="themed-input w-full text-xs font-mono-num rounded-lg px-2.5 py-1.5" />
+                <span class="text-[10px] text-mut mt-0.5 block">Auto-extracts ID from full URL</span>
               </div>
               <div class="lg:col-span-2">
-                <label for="appsScriptUrlInput" class="block text-[11px] font-bold uppercase text-mut mb-1">Google Apps Script Web App CRUD Endpoint URL (Optional Live Webhook)</label>
-                <div class="flex gap-2">
-                  <input id="appsScriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec (Leave blank for Local Replica + Queue Simulation)" class="themed-input flex-1 text-xs font-mono-num rounded-lg px-2.5 py-1.5" />
-                  <button id="saveSheetConfigBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold">Save Endpoint</button>
+                <label for="appsScriptUrlInput" class="block text-[11px] font-bold uppercase text-mut mb-1">Apps Script Web App Endpoint URL</label>
+                <div class="flex flex-wrap sm:flex-nowrap gap-2">
+                  <input id="appsScriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" class="themed-input flex-1 text-xs font-mono-num rounded-lg px-2.5 py-1.5" />
+                  <button id="saveSheetConfigBtn" type="button" class="btn-accent px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap">Save Endpoint</button>
+                  <button id="disconnectSheetBtn" type="button" class="themed-input px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap hover:opacity-80 text-rose-500">Disconnect</button>
                 </div>
               </div>
             </div>
@@ -612,7 +679,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Offline Outbox Queue (<span class="font-mono-num" id="outboxCountText">0</span> Pending)</h3>
-                    <p class="text-[11px] text-mut">Mutations recorded while offline in <span class="font-mono-num">localStorage</span> waiting for internet</p>
+                    <p class="text-[11px] text-mut">Mutations recorded in <span class="font-mono-num">localStorage</span> waiting for network</p>
                   </div>
                   <span id="outboxStatusBadge" class="text-[11px] px-2 py-0.5 rounded font-bold badge-credit">Queue Empty</span>
                 </div>
@@ -623,25 +690,33 @@
               <div class="surface-elevated p-3.5 rounded-xl space-y-2.5">
                 <div class="flex items-center justify-between">
                   <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Google Apps Script CRUD Connector (<span class="font-mono-num">Code.gs</span>)</h3>
-                    <p class="text-[11px] text-mut">Paste in your Sheet under <strong>Extensions → Apps Script → Deploy as Web App</strong></p>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-pri">Universal Apps Script Connector (<span class="font-mono-num">Code.gs</span>)</h3>
+                    <p class="text-[11px] text-mut">Auto-binds to any copied sheet — no manual ID editing required</p>
                   </div>
                   <button id="copyAppsScriptBtn" type="button" class="btn-accent px-2.5 py-1 rounded text-xs font-bold">📋 Copy Code.gs</button>
                 </div>
-                <pre id="appsScriptCodeBlock" class="themed-input p-2.5 rounded-lg text-[11px] font-mono-num overflow-x-auto max-h-52 leading-relaxed select-all">// Bound to Google Sheet: 1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo
-const SPREADSHEET_ID = '1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo';
+                <pre id="appsScriptCodeBlock" class="themed-input p-2.5 rounded-lg text-[11px] font-mono-num overflow-x-auto max-h-52 leading-relaxed select-all">/**
+ * CashBook Pro — Universal Google Sheets 2-Way CRUD Backend
+ * Auto-binds to active spreadsheet for ANY user copy!
+ */
+function getTargetSpreadsheet() {
+  const active = SpreadsheetApp.getActiveSpreadsheet();
+  return active ? active : SpreadsheetApp.openById('1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo');
+}
 
 function doGet(e) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = getTargetSpreadsheet();
   const readTab = (name) => {
     const sh = ss.getSheetByName(name);
     if (!sh) return [];
     const rows = sh.getDataRange().getValues();
+    if (rows.length <= 1) return [];
     const headers = rows.shift();
     return rows.map(r => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
   };
   return ContentService.createTextOutput(JSON.stringify({
     status: 'OK',
+    spreadsheetId: ss.getId(),
     books: readTab('Projects_Books'),
     transactions: readTab('Transactions'),
     hr: readTab('HR_Payroll'),
@@ -650,7 +725,7 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = getTargetSpreadsheet();
   const payload = JSON.parse(e.postData.contents);
   const ops = Array.isArray(payload.operations) ? payload.operations : [payload];
   const logSheet = ss.getSheetByName('Sync_Audit_Log');
@@ -660,15 +735,15 @@ function doPost(e) {
     if (!sh) return;
     const data = sh.getDataRange().getValues();
     const headers = data[0];
-    const idCol = 0; // Primary Key in Column A (Tx_ID, Book_ID, Emp_ID, Bill_ID)
+    const idCol = 0; // Primary Key in Column A
 
     if (op.action === 'CREATE') {
-      const newRow = headers.map(h => op.record[h] !== undefined ? op.record[h] : '');
+      const newRow = headers.map(h => (op.record && op.record[h] !== undefined) ? op.record[h] : '');
       sh.appendRow(newRow);
     } else if (op.action === 'UPDATE') {
       for (let i = 1; i < data.length; i++) {
         if (String(data[i][idCol]) === String(op.recordId)) {
-          const updatedRow = headers.map((h, c) => op.record[h] !== undefined ? op.record[h] : data[i][c]);
+          const updatedRow = headers.map((h, c) => (op.record && op.record[h] !== undefined) ? op.record[h] : data[i][c]);
           sh.getRange(i + 1, 1, 1, headers.length).setValues([updatedRow]);
           break;
         }
@@ -1124,6 +1199,97 @@ function doPost(e) {
           <button type="submit" class="btn-accent px-5 py-2 rounded-lg font-bold">Save Bill</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- CONNECT GOOGLE SHEET MODAL (FOR MULTI-USER CLOUD SYNC) -->
+  <div id="connectSheetModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div class="surface-card w-full max-w-xl rounded-2xl shadow-2xl border p-5 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 border-[var(--border-subtle)]">
+        <div>
+          <h3 class="text-base font-extrabold text-pri flex items-center gap-2">
+            <span>📊</span><span>Connect Your Google Sheet Database</span>
+          </h3>
+          <p class="text-xs text-mut mt-0.5">Every user gets their own 100% private Google Sheet. Your data stays in your personal Google Drive.</p>
+        </div>
+        <button id="closeConnectSheetModalBtn" type="button" class="text-mut hover:text-pri font-bold text-lg px-2">✕</button>
+      </div>
+
+      <!-- Quick 3-step Instructions -->
+      <div class="space-y-3">
+        <!-- Step 1 -->
+        <div class="surface-elevated p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-pri flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-full btn-accent text-[11px] flex items-center justify-center font-bold">1</span>
+              <span>Make a Private Copy of the Database Template</span>
+            </span>
+            <span class="text-[10px] uppercase font-bold badge-credit px-1.5 py-0.5 rounded">1-Click</span>
+          </div>
+          <p class="text-xs text-sec">
+            Click below to open Google Drive's copy prompt. It creates your personal spreadsheet with all 5 pre-configured database tabs (Transactions, Projects, HR, Bills & Audit Log).
+          </p>
+          <a href="https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/copy" target="_blank" rel="noopener noreferrer" class="btn-accent w-full py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 shadow-sm">
+            <span>📑</span><span>Open "Make a Copy" in Google Drive ↗</span>
+          </a>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="surface-elevated p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-pri flex items-center gap-1.5">
+              <span class="w-5 h-5 rounded-full btn-accent text-[11px] flex items-center justify-center font-bold">2</span>
+              <span>Deploy Apps Script Web App</span>
+            </span>
+            <span class="text-[10px] text-mut font-semibold">Takes 30 seconds</span>
+          </div>
+          <ol class="text-xs text-sec list-decimal list-inside space-y-1 pl-1">
+            <li>In your newly copied sheet, click <strong>Extensions → Apps Script</strong>.</li>
+            <li>Click <strong>Deploy → New deployment</strong> (blue button at top right).</li>
+            <li>Select type <strong>Web app</strong>, configure:
+              <ul class="list-disc list-inside pl-4 text-mut space-y-0.5 mt-0.5">
+                <li>Execute as: <strong>Me (your email)</strong></li>
+                <li>Who has access: <strong>Anyone</strong></li>
+              </ul>
+            </li>
+            <li>Click <strong>Deploy</strong>, authorize permissions, and copy the <strong>Web App URL</strong>.</li>
+          </ol>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="surface-elevated p-3.5 rounded-xl border border-[var(--border-subtle)] space-y-3">
+          <span class="text-xs font-bold text-pri flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full btn-accent text-[11px] flex items-center justify-center font-bold">3</span>
+            <span>Paste Your URLs Below</span>
+          </span>
+
+          <form id="connectSheetForm" class="space-y-3">
+            <div>
+              <label for="modalAppsScriptUrl" class="block text-xs font-semibold text-sec mb-1">
+                Apps Script Web App URL <span class="text-rose-500">*</span>
+              </label>
+              <input id="modalAppsScriptUrl" type="url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="themed-input w-full text-xs font-mono-num rounded-lg px-3 py-2" required />
+            </div>
+
+            <div>
+              <label for="modalSheetUrlOrId" class="block text-xs font-semibold text-sec mb-1">
+                Your Google Sheet URL or ID (Optional — for direct 1-click header link)
+              </label>
+              <input id="modalSheetUrlOrId" type="text" placeholder="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit" class="themed-input w-full text-xs font-mono-num rounded-lg px-3 py-2" />
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--border-subtle)]">
+              <button id="useOfflineModeBtn" type="button" class="themed-input px-3 py-2 rounded-lg text-xs font-semibold hover:opacity-80">
+                💾 Use Local Storage Only
+              </button>
+              <div class="flex items-center gap-2">
+                <button id="cancelConnectSheetModalBtn" type="button" class="themed-input px-4 py-2 rounded-lg text-xs font-semibold">Cancel</button>
+                <button type="submit" class="btn-accent px-5 py-2 rounded-lg text-xs font-bold">Connect & Sync</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -1,13 +1,25 @@
 (function () {
       'use strict';
 
-      const SPREADSHEET_ID_DEFAULT = '1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo';
+      const TEMPLATE_SHEET_ID = '1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo';
+      const TEMPLATE_COPY_URL = 'https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/copy';
+      const SPREADSHEET_ID_DEFAULT = TEMPLATE_SHEET_ID;
+
       const STORAGE_KEYS = {
         DB: 'cashbook_pro_db_v2',
         QUEUE: 'cashbook_pro_offline_queue_v1',
         THEME: 'cashbook_pro_theme_v1',
         CONFIG: 'cashbook_pro_sheet_config_v1'
       };
+
+      // Helper to auto-extract Spreadsheet ID from bare ID or full Google Sheets URL
+      function extractSheetId(input) {
+        if (!input) return '';
+        const trimmed = input.trim();
+        const match = trimmed.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        if (match && match[1]) return match[1];
+        return trimmed;
+      }
 
       // Baseline seed data matching the live Google Sheet 1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo
       function getBaselineDatabase() {
@@ -85,9 +97,16 @@
 
       let offlineQueue = safeGetStorage(STORAGE_KEYS.QUEUE, []);
       let sheetConfig = safeGetStorage(STORAGE_KEYS.CONFIG, {
-        sheetId: SPREADSHEET_ID_DEFAULT,
-        appsScriptUrl: ''
+        sheetId: '',
+        appsScriptUrl: '',
+        isConfigured: false
       });
+
+      // Migration: If config exists without appsScriptUrl and uses default ID, mark as unconfigured local mode
+      if (sheetConfig.sheetId === TEMPLATE_SHEET_ID && !sheetConfig.appsScriptUrl) {
+        sheetConfig.isConfigured = false;
+        sheetConfig.sheetId = '';
+      }
 
       let state = {
         activeView: 'dashboard',
@@ -221,7 +240,9 @@
         persistAll();
         updateNetworkUI();
         renderAll();
-        showToast('✅ Synced ' + action + ' (' + recordId + ') to Google Sheet [' + sheetName + ']', 'credit');
+        showToast(remoteSynced
+          ? '✅ Synced ' + action + ' (' + recordId + ') to your Google Sheet [' + sheetName + ']'
+          : '✅ Saved ' + action + ' (' + recordId + ') to local database [' + sheetName + ']', 'credit');
       }
 
       async function flushOfflineQueue() {
@@ -299,6 +320,57 @@
         showToast('⚡ Internet disconnected. Switched to Offline LocalStorage mode.', 'warn');
       });
 
+      function updateHeaderSheetButton() {
+        const headerBtn = document.getElementById('headerSheetBtn');
+        const headerText = document.getElementById('headerSheetText');
+        const headerIcon = document.getElementById('headerSheetIcon');
+        const displayLink = document.getElementById('currentSheetDisplayLink');
+        const badge = document.getElementById('sheetConnectionBadge');
+        const banner = document.getElementById('firstTimeUserBanner');
+
+        const isUserConnected = Boolean(sheetConfig && sheetConfig.isConfigured && (sheetConfig.appsScriptUrl || sheetConfig.sheetId));
+
+        if (isUserConnected) {
+          if (headerText) headerText.textContent = 'My Google Sheet';
+          if (headerIcon) headerIcon.textContent = '📊';
+          if (headerBtn) {
+            headerBtn.title = 'Open your connected Google Sheet in Google Drive';
+          }
+          if (badge) {
+            badge.className = 'px-2 py-0.5 rounded text-xs font-bold badge-credit';
+            badge.textContent = 'Personal Sheet Connected';
+          }
+          if (displayLink) {
+            if (sheetConfig.sheetId) {
+              displayLink.href = 'https://docs.google.com/spreadsheets/d/' + sheetConfig.sheetId + '/edit';
+              displayLink.textContent = 'https://docs.google.com/spreadsheets/d/' + sheetConfig.sheetId + '/edit';
+            } else {
+              displayLink.href = sheetConfig.appsScriptUrl;
+              displayLink.textContent = 'Connected via Custom Web App (' + sheetConfig.appsScriptUrl.slice(0, 35) + '...)';
+            }
+          }
+          if (banner) banner.classList.add('hidden');
+        } else {
+          if (headerText) headerText.textContent = 'Connect Google Sheet';
+          if (headerIcon) headerIcon.textContent = '⚡';
+          if (headerBtn) {
+            headerBtn.title = 'Click to connect your own Google Sheet or run in private local mode';
+          }
+          if (badge) {
+            badge.className = 'px-2 py-0.5 rounded text-xs font-bold badge-warn';
+            badge.textContent = 'Local / Offline Mode';
+          }
+          if (displayLink) {
+            displayLink.href = TEMPLATE_COPY_URL;
+            displayLink.textContent = 'Local Storage Only (Click to Copy Template & Connect Your Sheet)';
+          }
+          const dismissed = sessionStorage.getItem('cashbook_pro_banner_dismissed');
+          if (banner && !dismissed) {
+            banner.classList.remove('hidden');
+          }
+        }
+      }
+
       function updateNetworkUI() {
         const online = isEffectivelyOnline();
         const pill = document.getElementById('syncStatusPill');
@@ -309,14 +381,17 @@
         const queueBadge = document.getElementById('pendingQueueCountBadge');
         const navQueue = document.getElementById('navBadgeQueue');
         const sidebarDot = document.getElementById('sidebarSyncDot');
+        const isUserConnected = Boolean(sheetConfig && sheetConfig.isConfigured && sheetConfig.appsScriptUrl);
 
         if (online) {
           pill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold badge-credit';
-          text.textContent = offlineQueue.length > 0 ? ('Online • ' + offlineQueue.length + ' Pending') : 'Online • Sheets Synced';
+          text.textContent = offlineQueue.length > 0
+            ? ('Online • ' + offlineQueue.length + ' Pending')
+            : (isUserConnected ? 'Online • Sheets Synced' : 'Online • Local Mode');
           netIcon.textContent = '🌐';
           netLabel.textContent = 'Simulate Offline';
           sidebarDot.className = 'text-[10px] px-1.5 py-0.5 rounded badge-credit';
-          sidebarDot.textContent = 'LIVE';
+          sidebarDot.textContent = isUserConnected ? 'LIVE' : 'LOCAL';
           if (offlineQueue.length === 0) {
             banner.classList.add('hidden');
           } else {
@@ -343,6 +418,8 @@
         if (navQueue) {
           navQueue.textContent = offlineQueue.length + ' Queued';
         }
+
+        updateHeaderSheetButton();
       }
 
       // ========================================================================
@@ -954,7 +1031,7 @@
       }
 
       function renderSheetsSyncView() {
-        document.getElementById('sheetIdInput').value = sheetConfig.sheetId || SPREADSHEET_ID_DEFAULT;
+        document.getElementById('sheetIdInput').value = sheetConfig.sheetId || '';
         document.getElementById('appsScriptUrlInput').value = sheetConfig.appsScriptUrl || '';
 
         const outboxList = document.getElementById('offlineQueueList');
@@ -1866,18 +1943,125 @@
         // Google Sheets Sync Center Buttons
         document.getElementById('forceSyncNowBtn').addEventListener('click', flushOfflineQueue);
 
-        document.getElementById('saveSheetConfigBtn').addEventListener('click', function () {
-          sheetConfig.sheetId = document.getElementById('sheetIdInput').value.trim() || SPREADSHEET_ID_DEFAULT;
-          sheetConfig.appsScriptUrl = document.getElementById('appsScriptUrlInput').value.trim();
-          safeSetStorage(STORAGE_KEYS.CONFIG, sheetConfig);
-          showToast('✅ Saved Google Sheets connection config!', 'credit');
+        // Auto-extract Sheet ID on change/paste in sheetIdInput
+        document.getElementById('sheetIdInput').addEventListener('input', function (e) {
+          const extracted = extractSheetId(e.target.value);
+          if (extracted && extracted !== e.target.value) {
+            e.target.value = extracted;
+          }
         });
+
+        document.getElementById('saveSheetConfigBtn').addEventListener('click', function () {
+          const rawId = document.getElementById('sheetIdInput').value.trim();
+          const cleanId = extractSheetId(rawId);
+          const rawUrl = document.getElementById('appsScriptUrlInput').value.trim();
+
+          sheetConfig.sheetId = cleanId;
+          sheetConfig.appsScriptUrl = rawUrl;
+          sheetConfig.isConfigured = Boolean(cleanId || rawUrl);
+          safeSetStorage(STORAGE_KEYS.CONFIG, sheetConfig);
+
+          updateNetworkUI();
+          renderSheetsSyncView();
+          showToast(sheetConfig.isConfigured
+            ? '✅ Saved your personal Google Sheet configuration!'
+            : '💾 Saved configuration (Local storage mode active).', 'credit');
+        });
+
+        const disconnectBtn = document.getElementById('disconnectSheetBtn');
+        if (disconnectBtn) {
+          disconnectBtn.addEventListener('click', function () {
+            sheetConfig = { sheetId: '', appsScriptUrl: '', isConfigured: false };
+            safeSetStorage(STORAGE_KEYS.CONFIG, sheetConfig);
+            document.getElementById('sheetIdInput').value = '';
+            document.getElementById('appsScriptUrlInput').value = '';
+            updateNetworkUI();
+            renderSheetsSyncView();
+            showToast('🔌 Disconnected Google Sheet. Operating in private local mode.', 'warn');
+          });
+        }
+
+        // Connect Sheet Modal Handlers
+        const connectModal = document.getElementById('connectSheetModal');
+        function openConnectSheetModal() {
+          if (!connectModal) return;
+          const urlInput = document.getElementById('modalAppsScriptUrl');
+          const sheetInput = document.getElementById('modalSheetUrlOrId');
+          if (urlInput) urlInput.value = sheetConfig.appsScriptUrl || '';
+          if (sheetInput) sheetInput.value = sheetConfig.sheetId ? ('https://docs.google.com/spreadsheets/d/' + sheetConfig.sheetId + '/edit') : '';
+          connectModal.classList.remove('hidden');
+        }
+
+        function closeConnectSheetModal() {
+          if (connectModal) connectModal.classList.add('hidden');
+        }
+
+        const headerSheetBtn = document.getElementById('headerSheetBtn');
+        if (headerSheetBtn) {
+          headerSheetBtn.addEventListener('click', function () {
+            if (sheetConfig && sheetConfig.isConfigured && sheetConfig.sheetId) {
+              window.open('https://docs.google.com/spreadsheets/d/' + sheetConfig.sheetId + '/edit', '_blank');
+            } else {
+              openConnectSheetModal();
+            }
+          });
+        }
+
+        const openConnectBtn = document.getElementById('openConnectModalBtn');
+        if (openConnectBtn) openConnectBtn.addEventListener('click', openConnectSheetModal);
+
+        const openConnectFromSheetsBtn = document.getElementById('openConnectModalFromSheetsBtn');
+        if (openConnectFromSheetsBtn) openConnectFromSheetsBtn.addEventListener('click', openConnectSheetModal);
+
+        const closeConnectBtn = document.getElementById('closeConnectSheetModalBtn');
+        if (closeConnectBtn) closeConnectBtn.addEventListener('click', closeConnectSheetModal);
+
+        const cancelConnectBtn = document.getElementById('cancelConnectSheetModalBtn');
+        if (cancelConnectBtn) cancelConnectBtn.addEventListener('click', closeConnectSheetModal);
+
+        const dismissBannerBtn = document.getElementById('dismissFirstTimeBannerBtn');
+        if (dismissBannerBtn) {
+          dismissBannerBtn.addEventListener('click', function () {
+            const banner = document.getElementById('firstTimeUserBanner');
+            if (banner) banner.classList.add('hidden');
+            try { sessionStorage.setItem('cashbook_pro_banner_dismissed', 'true'); } catch (e) {}
+          });
+        }
+
+        const offlineModeBtn = document.getElementById('useOfflineModeBtn');
+        if (offlineModeBtn) {
+          offlineModeBtn.addEventListener('click', function () {
+            closeConnectSheetModal();
+            showToast('💾 Operating in local browser storage mode. Data is saved on this device.', 'credit');
+          });
+        }
+
+        const connectForm = document.getElementById('connectSheetForm');
+        if (connectForm) {
+          connectForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const rawUrl = document.getElementById('modalAppsScriptUrl').value.trim();
+            const rawSheet = document.getElementById('modalSheetUrlOrId').value.trim();
+            const cleanId = extractSheetId(rawSheet);
+
+            sheetConfig.appsScriptUrl = rawUrl;
+            sheetConfig.sheetId = cleanId;
+            sheetConfig.isConfigured = Boolean(rawUrl || cleanId);
+            safeSetStorage(STORAGE_KEYS.CONFIG, sheetConfig);
+
+            closeConnectSheetModal();
+            updateNetworkUI();
+            renderSheetsSyncView();
+            showToast('🎉 Connected your Google Sheet successfully! Cloud sync is now active.', 'credit');
+          });
+        }
 
         document.getElementById('pullFromSheetsBtn').addEventListener('click', async function () {
           if (!isEffectivelyOnline()) {
             showToast('⚡ Cannot pull from Google Sheets while Offline. Serving cached LocalStorage data.', 'warn');
             return;
           }
+          let sheetPulled = false;
           if (sheetConfig.appsScriptUrl && sheetConfig.appsScriptUrl.startsWith('https://')) {
             try {
               const res = await fetch(sheetConfig.appsScriptUrl);
@@ -1887,24 +2071,30 @@
                 if (Array.isArray(data.transactions) && data.transactions.length) db.transactions = data.transactions;
                 if (Array.isArray(data.hr) && data.hr.length) db.hr = data.hr;
                 if (Array.isArray(data.bills) && data.bills.length) db.bills = data.bills;
+                sheetPulled = true;
               }
             } catch (e) {
-              // Fallback to baseline sync audit
+              // Fallback
             }
           }
+          const targetName = sheetConfig.sheetId ? (sheetConfig.sheetId.slice(0, 10) + '...') : 'Local Database';
           db.auditLogs.unshift({
             Log_ID: 'READ-' + Date.now().toString().slice(-4),
             Timestamp_IST: nowISTString(),
             Operation: 'READ_REFRESH',
             Target_Sheet: 'ALL_TABS',
             Record_ID: 'FULL_PULL',
-            Source_Mode: 'Online_Direct',
-            Status: 'SUCCESS',
-            Details: 'Verified & refreshed all 4 relational tables from Google Sheet 1UTXWt...6bRvo'
+            Source_Mode: sheetPulled ? 'Live_Webhook' : 'Local_Replica',
+            Status: sheetPulled ? 'SUCCESS' : 'LOCAL_ONLY',
+            Details: sheetPulled
+              ? 'Pulled latest tables from connected Google Sheet (' + targetName + ')'
+              : (sheetConfig.appsScriptUrl ? 'Fetched endpoint but used local replica cache' : 'No Web App configured; refreshed local state')
           });
           persistAll();
           renderAll();
-          showToast('📊 Refreshed data from Google Sheet (1UTXWt...6bRvo)!', 'credit');
+          showToast(sheetPulled
+            ? '📊 Refreshed data from your personal Google Sheet!'
+            : '📊 Local database refreshed from LocalStorage cache.', 'credit');
         });
 
         document.getElementById('resetDemoDataBtn').addEventListener('click', function () {

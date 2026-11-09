@@ -2,9 +2,17 @@
 
 A complete responsive Mobile & Web CashBook application featuring multi-project books, Debits/Credits with running balances, HR Payroll (**Monthly**, **Weekly**, and **Daily** wage modes), Bills & Receivables, 5 WCAG-accessible themes, and an offline-first `localStorage` outbox queue backed by Google Sheets.
 
-## Connected Google Sheets Database
-- **Live Google Sheet**: https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/edit
-- **Spreadsheet ID**: `1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo`
+## Multi-User Architecture (Bring Your Own Google Sheet)
+This web application is 100% serverless, private, and multi-user ready:
+- **Private by Default**: When any visitor opens the site, their entries are securely saved in their own browser's `localStorage`. No data is mixed between users.
+- **1-Click Cloud Database**: Any user can connect their personal Google Drive spreadsheet:
+  1. Click **[📑 Make a Copy of Template Sheet](https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/copy)** to clone the 5 database tabs into their own Google Drive.
+  2. In their copied sheet, open **Extensions → Apps Script** and click **Deploy → New deployment → Web app** (`Execute as: Me`, `Access: Anyone`).
+  3. In CashBook Pro, click **Connect Google Sheet** and paste their Web App URL.
+
+## Master Template Google Sheet
+- **Template Preview**: https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/edit
+- **Template 1-Click Copy**: https://docs.google.com/spreadsheets/d/1UTXWtG8KxQ3JqQjGsCYabxgd_t3mCFH8Ws2YvW6bRvo/copy
 
 ## Project Structure (IDE Ready)
 ```text
